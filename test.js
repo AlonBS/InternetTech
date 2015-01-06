@@ -4,6 +4,8 @@ var net = require('net');
 var http = require('http');
 var fs = require('fs');
 var path = require ('path');
+var parser = require ('./hujiparser.js');
+var requestModule = require ('./HttpRequest.js');
 
 var rootFolder = "";
 
@@ -245,4 +247,77 @@ function run_tests() {
 }
 
 
-run_tests();
+//run_tests();
+
+//var x = JSON.stringify([1,2,3]);
+//console.log(x);
+//
+////var ;
+//switch (typeof (x)) {
+//    case 'string':
+//        console.log("hi1");
+//        break;
+//    case 'object':
+//        console.log("hi2");
+//        break;
+//}
+
+//function fillQueryParams(queryParams) {
+//    var query = {};
+//    var splittedQueryParams = queryParams.split("&");
+//
+//    for (var i=0; i< splittedQueryParams.length; i++) {
+//        var equalIndex = splittedQueryParams[i].indexOf('=');
+//
+//        if (equalIndex != -1) {
+//            var key = splittedQueryParams[i].substr(0, equalIndex);
+//            var val = splittedQueryParams[i].substr(equalIndex + 1);
+//            addToQuery(key, val, query);
+//            //query[key] = val;
+//        }
+//    }
+//
+//    return query;
+//}
+//
+//function addToQuery(key, val, query) {
+//    var leftBracketIndex = key.indexOf('[');
+//
+//    if (leftBracketIndex !== -1) {
+//        var rightBracketIndex = key.lastIndexOf(']');
+//        var newKey = key.substr(0, leftBracketIndex);
+//        var leftStr = key.substr(leftBracketIndex+1, (rightBracketIndex - leftBracketIndex - 1));
+//
+//        query[newKey] = addToQuery(leftStr, val, query);
+//
+//        return query;
+//    }
+//
+//    query[key] = val;
+//
+//    return query;
+//}
+
+//var t = "shoe=big";
+//var res = fillQueryParams(t);
+//console.log(res.shoe);
+
+//console.log("start for");
+//for (var v in res.color) {
+//    console.log(res.color[v]);
+//}
+
+
+var msg = "GET /a.txt HTTP/1.1\n" +
+    "Content-Type: text/xml;\n" +
+    "Host: http://www.example.com:3000\n" +
+    "Content-Length: 10\n\n" +
+    "This is the body!!!";
+
+var request = parser.parse(msg);
+
+
+console.log("done");
+
+//var x = {"name" : "tal"};
+//console.log(x.sd);

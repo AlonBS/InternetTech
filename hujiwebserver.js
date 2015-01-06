@@ -15,18 +15,6 @@ var serversNextId = 0;
 var servers = {};
 var resourceHnadlers = []; // each element will look like: [resource, handler, filter]
 
-var reasonPharseContent = {
-    200 : "OK",
-    400 : "Bad Request",
-    401 : "Unauthorized",
-    404 : "Not Found",
-    413 : "Request Entity Too Large",
-    414 : "Request-URI Too Large",
-    505 : "HTTP Version not supported",
-
-    def: "Internal Error"
-};
-
 var errBody = {
     400 : "Error 400: Bad Request",
     401 : "Error 401: Unauthorized",
@@ -124,7 +112,7 @@ function onRequestArrival(request, socket) {
         return;
     }
 
-    var filePath = prepareURI(httpRequest.requestURI);
+    var filePath = preparePath(httpRequest.path);
     if (filePath === null) {
         sendErrorResponse(400, socket, closeConnection);
         return;
@@ -147,16 +135,16 @@ function shouldCloseConnection(httpRequest) {
 }
 
 // for static request, we need to append the requested uri to the server root path
-function prepareURI(requestURI) {
+function preparePath(requestPath) {
     // supports spaces inside the uri
-    requestURI = requestURI.replace(/%20/g,' ');
+    requestPath = requestPath.replace(/%20/g,' ');
 
     // adds '/' to the start (if necessary)
-    if (requestURI.indexOf('/') !== 0)
-        requestURI = "/" + requestURI;
+    if (requestPath.indexOf('/') !== 0)
+        requestPath = "/" + requestPath;
 
     try {
-        return path.resolve(serverRootFolder + requestURI);
+        return path.resolve(serverRootFolder + requestPath);
     } catch (e) {
         return null;
     }

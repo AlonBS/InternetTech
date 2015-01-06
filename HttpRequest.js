@@ -4,8 +4,7 @@
 
 
 // square.js
-function HttpRequest(method, requestURI,
-                     version, header,
+function HttpRequest(method, version, header,
                      body, leftData, query,
                      cookies, path, host, protocol) {
 
@@ -14,7 +13,7 @@ function HttpRequest(method, requestURI,
     }
 
     this.method = method;
-    this.requestURI = requestURI;
+    //this.requestURI = requestURI;
     this.params = {}; // TODO
     this.version = version;
     this.header = header;

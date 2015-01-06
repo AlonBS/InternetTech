@@ -6,9 +6,6 @@
  */
 
 
-requite
-
-
 // square.js
 function HttpResponse(clientSocket) {
 
