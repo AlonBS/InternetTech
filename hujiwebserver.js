@@ -219,6 +219,10 @@ exports.start = function (port, rootFolder, callBack) {
 
     rootFolder = rootFolder.toLowerCase();
 
+    var dynamic = require('./hujidynamicserver.js');
+    var server = new dynamic();
+
+
     try {
         serverRootFolder = path.resolve(rootFolder);
 
