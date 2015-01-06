@@ -5,6 +5,7 @@
 var parser = require('./hujiparser');
 var hujiNet = require('./hujinet');
 var httpObjects = require('./HttpObjects');
+var hujiDynamicServer = require('./hujidynamicserver.js');
 
 var fs = require('fs');
 var path = require ('path');
@@ -218,47 +219,54 @@ function identifyType(uri) {
     }
 }
 
-exports.start = function (port, rootFolder, callBack) {
+exports.start = function (port, callBack) {
 
-    rootFolder = rootFolder.toLowerCase();
+    if (port < 1 || port > 65535) {
 
-    var dynamic = require('./hujidynamicserver.js');
-    var server = new dynamic();
-
-
-    try {
-        serverRootFolder = path.resolve(rootFolder);
-
-        // verify that the received root folder is exists
-        if (!fs.existsSync(serverRootFolder)) {
-            writeLog("hujiwebserver", "start", "invalid server root folder", true);
-            callBack("invalid server root folder");
-            return -1;
-        }
-    } catch (e) {
-        callBack("invalid server root folder");
-        return -1;
+        callBack("Invalid port number given");
     }
 
-    var server = hujiNet.createServer(port, onRequestArrival, callBack);
+    var server = new hujiDynamicServer(port);
 
-    servers[serversNextId] = server;
+    callBack("", server)
 
-    return serversNextId++;
 };
 
 
-exports.stop = function (serverID, callBack) {
+    //
+    //try {
+    //    serverRootFolder = path.resolve(rootFolder);
+    //
+    //    // verify that the received root folder is exists
+    //    if (!fs.existsSync(serverRootFolder)) {
+    //        writeLog("hujiwebserver", "start", "invalid server root folder", true);
+    //        callBack("invalid server root folder");
+    //        return -1;
+    //    }
+    //} catch (e) {
+    //    callBack("invalid server root folder");
+    //    return -1;
+    //}
 
-    var asInt = parseInt(serverID);
+    //var server = hujiNet.createServer(port, onRequestArrival, callBack);
+    //
+    //servers[serversNextId] = server;
+    //
+    //return serversNextId++;
 
-    if (!asInt in servers) return;
 
-    servers[asInt].close();
-    delete servers[asInt];
-
-    // This will allow our server to close any left connections until it can be closed completely.
-    setTimeout(function() {
-        callBack();
-    }, 2000);
-};
+//
+//exports.stop = function (serverID, callBack) {
+//
+//    var asInt = parseInt(serverID);
+//
+//    if (!asInt in servers) return;
+//
+//    servers[asInt].close();
+//    delete servers[asInt];
+//
+//    // This will allow our server to close any left connections until it can be closed completely.
+//    setTimeout(function() {
+//        callBack();
+//    }, 2000);
+//};

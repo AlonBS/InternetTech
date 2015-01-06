@@ -2,25 +2,66 @@
  * Created by Alon and Tal on 06/01/2015.
  */
 
+var hujiNet = require('./hujinet.js');
+
+
+
+function onRequestArrival(request, clientSocket) {
+
+
+
+
+}
+
 // square.js
-function Server(socket) {
+function DynamicServer(port) {
 
-    this.socket = socket;
+    this.listener = hujiNet.createServer(port, onRequestArrival, function(err){
+        // TODO - implement
+    });
 
-    this.stop = function() {
+    this.resourceHandlers = []
 
-        socket.stop();
 
-        console.log("Stop called!")
-    }
 
-    this.use = function(resource , requestHndler(rq,rs, next)) {
-
-        console.log("use Called");
-    }
 };
 
 
+DynamicServer.prototype.stop = function() {
+
+    setTimeout(function() {
+        this.listener.end();
+    }, 2000);
+};
 
 
-module.exports = Server;
+DynamicServer.prototype.use = function (resource , requestHandler) {
+
+    this.resourceHandlers.push([resource, "any", requestHandler]);
+};
+
+
+DynamicServer.prototype.get = function (resource , requestHandler) {
+
+    this.resourceHandlers.push([resource, "get", requestHandler]);
+};
+
+
+DynamicServer.prototype.post = function (resource , requestHandler) {
+
+    this.resourceHandlers.push([resource, "post", requestHandler]);
+};
+
+
+DynamicServer.prototype.delete = function (resource , requestHandler) {
+
+    this.resourceHandlers.push([resource, "delete", requestHandler]);
+};
+
+DynamicServer.prototype.put = function (resource , requestHandler) {
+
+    this.resourceHandlers.push([resource, "put", requestHandler]);
+};
+
+
+module.exports = DynamicServer;
