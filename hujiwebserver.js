@@ -12,6 +12,7 @@ var path = require ('path');
 var serverRootFolder = "";
 var serversNextId = 0;
 var servers = {};
+var resourceHnadlers = []; // each element will look like: [resource, handler, filter]
 
 var reasonPharseContent = {
     200 : "OK",
@@ -67,6 +68,8 @@ function sendFileResponse(filePath, version, socket, closeConnection) {
         writeLog("hujiwebserver", "sendFileResponse", "unauthorized access to: " + filePath, true);
         return;
     }
+
+
 
     fs.stat(filePath, function (err, stats) {
         if (err || !stats.isFile()) {
