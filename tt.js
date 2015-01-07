@@ -1,32 +1,29 @@
-/**
-* Created by Alon on 04/01/2015.
-*/
-//
-//var webServer = require('./hujiwebserver.js');
-//
-//
-//function callBack(err, server) {
-//
-//    server.use();
-//    server.stop();
-//
-//}
-//
-//
-//
-//webServer.start(8888, callBack)
-//
+// user/:name/y
+function transformToRegex(r, request) {
 
-var tt = require('./HttpResponse.js');
-var res = new tt();
-res.status(4).status(5);
+    var endsWithSlash = r.indexOf('/', r.length - 1) !== -1;
+    var suffix = endsWithSlash ? '?.*$' : '/?.*$';
+    var regex = new RegExp( '^' + r.replace(/(:[a-zA-Z0-9]+|\*)/g, ".*") + suffix);
 
-console.log(res.statussss);
+    console.log(regex)
+    console.log(request)
+
+    console.log(regex.test(request))
+
+}
+
+//transformToRegex("/user/:name/y/z/:sss/a");
+//transformToRegex("/user/");
+//transformToRegex("/user");
+//transformToRegex("/user/*/");
+
+transformToRegex("/user", "/user/iosi/avi");
 
 
 
 
 
-//
-//
-//}
+
+
+
+
