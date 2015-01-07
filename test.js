@@ -308,14 +308,36 @@ function run_tests() {
 //}
 
 
-var msg = "GET /a.txt HTTP/1.1\n" +
-    "Content-Type: text/xml;\n" +
+var msg = "POST /name=tobi HTTP/1.1\n" +
+    "Content-Type: text/xml\n" +
     "Host: http://www.example.com:3000\n" +
     "Content-Length: 10\n\n" +
     "This is the body!!!";
 
 var request = parser.parse(msg);
 
+console.log("method: " + request.method + ", version: " + request.version + ", path: " + request.path + ", hostname: " + request.host + ", protocol: " + request.protocol);
+
+var queries = "";
+for (var val in request.query)
+    queries += val + ": " + request.query[val] + "; ";
+
+console.log("query: " + queries);
+
+var prms = "";
+for (var val in request.params)
+    prms += val + ": " + request.params[val] + "; ";
+
+console.log("params: " + prms);
+
+var header = "";
+for (var val in request.header)
+    header += val + ": " + request.header[val] + "; ";
+
+console.log("header: " + header);
+console.log("-----------------------");
+console.log(webServer.static("folder"));
+//console.log("order=" + request.query.order + "; shoe[color]=" + request.query.shoe.color + "; shoe[type]=" + request.query.shoe.type);
 
 console.log("done");
 

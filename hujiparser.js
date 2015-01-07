@@ -45,34 +45,36 @@ exports.parse = function (dataAsString) {
         }
 
         version = requestLineMatch[5].toUpperCase();
-
-        if (version.contains("http\/")) {
+        console.log("version is: " + version);
+        if (version.indexOf("HTTP\/") == 0) {
             protocol = "http";
         }
-        else if (version.contains("https\/")) {
+        else if (version.indexOf("HTTPS\/") == 0) {
             protocol = "https";
         }
 
     }
 
     // parse the header lines (if exist)
-    var headerRegex = /[\s]*([^:\s]+)[\s]*:[\s]*(.*)/g;
+
 
     while (i < lines.length && lines[i] !== "") {
+        var headerRegex = /[\s]*([^:\s]+)[\s]*:[\s]*(.*)/g;
         var headerMatch = headerRegex.exec(lines[i++]);
 
         if (headerMatch != null) {
-            header[headerMatch[1].toLowerCase()] = headerMatch[2].toLowerCase();
+            var headerVal = headerMatch[2].toLowerCase();
 
             if (headerMatch[1].toLowerCase() === "host") {
-                var hostVal = headerMatch[2].toLowerCase();
-                var colonIndex = hostVal.lastIndexOf(':');
+                var colonIndex = headerVal.lastIndexOf(':');
 
-                if (colonIndex === -1)
-                    host = hostVal;
-                else
-                    host = hostVal.substr(0, colonIndex);
+                if (colonIndex !== -1)
+                    headerVal = headerVal.substr(0, colonIndex);
+
+                host = headerVal;
             }
+
+            header[headerMatch[1].toLowerCase()] = headerVal;
         }
     }
 
@@ -98,9 +100,10 @@ exports.parse = function (dataAsString) {
         body = temp.substr(0, parseInt(header["content-length"]));
         leftData = temp.substr(parseInt(header["content-length"]));
     }
+    // TODO: right now we don't support request line: "POST /name=tobi HTTP/1.1\n"... that let return "tobi" for req.param('name')
 
     // TODO: complete implemnatation !!
-    return new httpRequestModule(method, version, header, body, leftData, query /*, cookies*/, path, host, protocol);
+    return new httpRequestModule(method, version, header, body, leftData, query, null /* cookies*/, path, host, protocol);
 };
 
 function fillQueryParams(queryParams) {

@@ -5,7 +5,6 @@
 var hujiNet = require('./hujinet.js');
 
 
-
 function onRequestArrival(request, clientSocket) {
 
     for (r in this.resourceHandlers) {
@@ -27,6 +26,7 @@ function onRequestArrival(request, clientSocket) {
         }
     }
 }
+
 
 // square.js
 function DynamicServer(port) {

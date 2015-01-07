@@ -17,6 +17,14 @@ function HttpResponse(clientSocket) {
 
     this.clientSocket = clientSocket;
 
+    this.shouldCloseConnection = false;
+
+    return this;
+};
+
+HttpResponse.prototype.closeConnection = function closeConnection(shouldClose) {
+
+    this.shouldCloseConnection = shouldClose;
     return this;
 };
 
@@ -86,6 +94,10 @@ HttpResponse.prototype.send = function(body) {
 
     var msg = this.parser.stringify(this);
     this.clientSocket.write(msg);
+
+    // TODO - Tal added it to clarify the code
+    if (this.shouldCloseConnection)
+        this.clientSocket.end();
 
     return this;
 };
