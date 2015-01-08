@@ -5,27 +5,27 @@
 var hujiNet = require('./hujinet.js');
 
 
-function onRequestArrival(request, clientSocket) {
+function temp1(req) {
 
-    for (r in this.resourceHandlers) {
+    var requestLine = req.substring(0, req.regexIndexOf(/[\r\n]/));
+    console.log(requestLine);
 
-        if (r[3].test(request)) {
+    var requestLineRegex = /^[\s]*([\w]+)[\s]+(([^\s]+?)[\s]+|([^\s]*?))([\w]+\/[0-9\.]+)[\s]*$/g;
+    var requestLineMatch = requestLineRegex.exec(requestLine);
 
-            // do as hujiwebserver onRequest arrival
-
-            // first : if we got here - than the request matches the specific
-            // resource - so we need to build the request (using the parser)
-            // next: call a function (yet to be built) updateParams
-            // which loads the params according to the resource
-
-            // finally - call the handler with the request (and response?),
-            // and create the next function as needed.
-
-            // Note: requestHandler is now in the for of:
-            // [ [resource, handler, "any", resourceAsRegex - call me about ths ]...[ ... ]]
-        }
-    }
+    console.log(requestLineMatch[0]);
+    console.log(requestLineMatch[1]);
+    console.log(requestLineMatch[2]);
+    console.log(requestLineMatch[3]);
+    console.log(requestLineMatch[4]);
+    console.log(requestLineMatch[5]);
 }
+
+
+
+
+
+
 
 
 // square.js
@@ -114,6 +114,91 @@ DynamicServer.prototype.put = function (resource , requestHandler) {
     var rh = setUpResourceAndHandler(arguments[0], arguments[1],"put");
     this.resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
+
+
+
+function onRequestArrival(request, clientSocket) {
+
+    var requestLine = request.substring(0, request.regexIndexOf(/[\r\n]/));
+    var requestLineRegex = /^[\s]*([\w]+)[\s]+(([^\s]+?)[\s]+|([^\s]*?))([\w]+\/[0-9\.]+)[\s]*$/g;
+    var path = requestLineRegex.exec(requestLine)[2];
+
+    if (path === undefined) {
+
+        //TODO - no path was given in the request. what should we do?
+        // maybe send error message?
+    }
+
+
+    for (r in this.resourceHandlers) {
+        if (r[3].test(path)) {
+
+            var httpRequest = parser.parse(request);//
+
+            //if the request is missing or in bad format, return (the error response was already sent)
+            if (httpRequest === null || httpRequest === undefined) {
+                return; // TODO - when was the message sent?
+            }
+
+            httpRequest.updateParams(r[0]); // TODO - need to implement this method
+
+            var handler = r[1];
+            handler(httpRequest, httpResponse, function() {
+
+            });
+
+
+
+            // do as hujiwebserver onRequest arrival
+
+            // first : if we got here - than the request matches the specific
+            // resource - so we need to build the request (using the parser)
+            // next: call a function (yet to be built) updateParams
+            // which loads the params according to the resource
+
+            // finally - call the handler with the request (and response?),
+            // and create the next function as needed.
+
+            // Note: requestHandler is now in the for of:
+            // [ [resource, handler, "any", resourceAsRegex - call me about ths ]...[ ... ]]
+        }
+    }
+}
+
+
+
+function isValidRequest(httpRequest, socket, closeConnection) {
+
+    if (!httpRequest.version || httpRequest.version === "" || httpRequest.version.indexOf("HTTP/1.") !== 0) {
+        writeLog("hujiwebserver", "isValidRequest", "wrong http version", true);
+        sendErrorResponse(400, socket, closeConnection);
+        return false;
+    }
+
+    // checks if httpRequest.method is valid (i.e, it exists in methodOptions map)
+    var isContained = false;
+
+    for (var i=0; i < methodOptions.length; i++) {
+        if (methodOptions[i] === httpRequest.method) {
+            isContained = true;
+            break;
+        }
+    }
+
+    if (!isContained) {
+        writeLog("hujiwebserver", "isValidRequest", "wrong method request", true);
+        sendErrorResponse(400, socket, closeConnection);
+        return false;
+    }
+
+    return true;
+}
+
+
+
+
+
+
 
 
 module.exports = DynamicServer;

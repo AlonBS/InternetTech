@@ -15,6 +15,13 @@ var serversNextId = 0;
 var servers = {};
 var resourceHnadlers = []; // each element will look like: [resource, handler, filter]
 
+
+// TODO - where should we put this method
+String.prototype.regexIndexOf = function(regex, startpos) {
+    var indexOf = this.substring(startpos || 0).search(regex);
+    return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+}
+
 var errBody = {
     400 : "Error 400: Bad Request",
     401 : "Error 401: Unauthorized",
@@ -227,6 +234,7 @@ var staticResourceHandler = function (request, response, next) {
 //        return null;
 //    }
 //}
+
 
 //function isValidRequest(httpRequest, socket, closeConnection) {
 //
