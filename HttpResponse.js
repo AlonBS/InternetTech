@@ -6,6 +6,20 @@
  */
 
 
+
+var errBody = {
+    400 : "Error 400: Bad Request",
+    401 : "Error 401: Unauthorized",
+    404 : "Error 404: Not Found",
+    413 : "Error 413: Request Entity Too Large",
+    414 : "Error 414: Request-URI Too Large",
+    505 : "Error 505: HTTP Version not supported",
+
+    def:  "Error 500: Undefined Error"
+
+};
+
+
 // square.js
 function HttpResponse(clientSocket) {
 
@@ -69,6 +83,10 @@ HttpResponse.prototype.cookie = function(name, value, options) {
 
 
 HttpResponse.prototype.send = function(body) {
+
+    if (this.statusCode !== 200) {
+        body = errBody[this.statusCode];
+    }
 
     switch (typeof(body)) {
 

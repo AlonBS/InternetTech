@@ -308,7 +308,7 @@ function run_tests() {
 //}
 
 
-var msg = "POST /name=tobi HTTP/1.1\n" +
+var msg = "POST /name=tobi&a[b[c]]=d HTTP/1.1\n" +
     "Content-Type: text/xml\n" +
     "Host: http://www.example.com:3000\n" +
     "Content-Length: 10\n\n" +
