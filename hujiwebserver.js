@@ -11,9 +11,9 @@ var fs = require('fs');
 var path = require ('path');
 
 var serverStaticRootFolder = "";
-var serversNextId = 0;
-var servers = {};
-var resourceHnadlers = []; // each element will look like: [resource, handler, filter]
+var serversNextId = 0; //TODO - needed
+var servers = {};   // TODO - needed?
+
 
 
 // TODO - where should we put this method
@@ -22,7 +22,7 @@ String.prototype.regexIndexOf = function(regex, startpos) {
     return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
 }
 
-var errBody = {
+var errBody = { //TODO - move this to HttpResponse?
     400 : "Error 400: Bad Request",
     401 : "Error 401: Unauthorized",
     404 : "Error 404: Not Found",
@@ -34,7 +34,7 @@ var errBody = {
 
 };
 
-//var methodOptions = ["options", "get", "head", "post", "put", "delete", "trace", "connect"];
+//
 
 
 //function sendErrorResponse(errCode, socket, closeConnection) {
@@ -105,7 +105,7 @@ exports.static = function (rootFolder) {
     try {
         serverStaticRootFolder = path.resolve(rootFolder);
 
-        // verify that the received root folder is exists
+        // verify that the received root folder  exists
         if (!fs.existsSync(serverStaticRootFolder)) {
             writeLog("hujiwebserver", "static", "invalid root folder", true);
 
@@ -116,6 +116,7 @@ exports.static = function (rootFolder) {
         //callBack("invalid server root folder");
     }
 
+    //Todo - to Tal, this won't compile. you need: "this.server.use()"
     hujiDynamicServer.use(serverStaticRootFolder, staticResourceHandler);
 };
 
@@ -147,10 +148,14 @@ var staticResourceHandler = function (request, response, next) {
         // waits until we know the readable stream is actually valid before piping
         fileAsAStream.on("open", function() {
 
+
+            // TODO - to tal: I think you have a mistake here. shouldn't it be:
+            // TODO - why do you set response.closeConnection to false?
             var closeConnection = response.shouldCloseConnection;
             response.closeConnection(false);
 
             // send header part
+            // TODO - lower case perhaps?
             response.set("Content-Type", identifyType(request.path));
             response.set("Content-Length", stats.size);
             response.send();

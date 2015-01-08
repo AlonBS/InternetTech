@@ -11,10 +11,7 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
         socket.on('data', function(data) {
 
             this.buffer += data;
-            // catch any unexpected exception for the server stability
-            try {
-                onRequestArrival(this.buffer.toString(), socket);
-            } catch (e){}
+            onRequestArrival(this.buffer.toString(), socket);
         });
 
         socket.on('end', function() {/*do nothing */});

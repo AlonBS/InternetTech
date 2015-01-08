@@ -58,6 +58,17 @@ HttpRequest.prototype.is = function(type) {
 };
 
 
+// /user/:name
+// /user/*
+// /user/*/eti
+
+// get /user/iosi
+HttpRequest.prototype.updateParams = function(resource) {
+
+    //TODO - this is harder than is looks, no?
+};
+
+
 
 
 module.exports = HttpRequest;

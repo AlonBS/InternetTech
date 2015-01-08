@@ -42,13 +42,19 @@ var msg = "POST /name=tobi HTTP/1.1\n" +
     "This is the body!!!";
 
 
-temp1(msg);
+//temp1(msg);
 
 
 
 
 
 
+var methodOptions = ["options", "get", "head", "post", "put", "delete", "trace", "connect"];
 
+// checks if httpRequest.method is valid (i.e, it exists in methodOptions map)
+var isContained = false;
+for (var i in methodOptions) {
+    console.log(methodOptions[i]);
+}
 
 

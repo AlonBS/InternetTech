@@ -3,6 +3,8 @@
  */
 
 var hujiNet = require('./hujinet.js');
+var parser = require('./hujiparse.js');
+var httpResponseModule = require('./HttpResponse');
 
 
 function temp1(req) {
@@ -116,82 +118,127 @@ DynamicServer.prototype.put = function (resource , requestHandler) {
 };
 
 
-
 function onRequestArrival(request, clientSocket) {
 
-    var requestLine = request.substring(0, request.regexIndexOf(/[\r\n]/));
-    var requestLineRegex = /^[\s]*([\w]+)[\s]+(([^\s]+?)[\s]+|([^\s]*?))([\w]+\/[0-9\.]+)[\s]*$/g;
-    var path = requestLineRegex.exec(requestLine)[2];
+    try {
 
-    if (path === undefined) {
+        analyzeRequest(request, clientSocket)
 
+    }
+    catch (e) { // in case some error happens, we return '500'
+
+        new httpResponseModule(clientSocket)
+            .status(500)
+            .closeConnection(false) // TODO - should we close connection in this case or not ?
+            .send("Error 500: Undefined Error"); // Again - we should take the map from hujiwebServer
+
+    }
+
+}
+
+
+function analyzeRequest(request, clientSocket) {
+
+    var httpRequest = parser.parse(request);
+
+    //if the request is missing or in bad format, return (the error response was already sent)
+    if (httpRequest === null || httpRequest === undefined) {
+        return; // TODO - when was the message sent?
+    }
+
+    if (httpRequest.path === undefined) {
         //TODO - no path was given in the request. what should we do?
         // maybe send error message?
     }
 
+    var closeConnection = shouldCloseConnection(httpRequest);
+    if (!isValidRequest(httpRequest)) {
 
-    for (r in this.resourceHandlers) {
-        if (r[3].test(path)) {
+        new httpResponseModule(clientSocket)
+            .status(404)
+            .closeConnection(closeConnection)
+            .send("Error 400: Bad Request"); //TODO move
+        return;
+    }
 
-            var httpRequest = parser.parse(request);//
+    var foundMatch = false;
+    for (r in this.resourceHandlers) {  // dynamically search for  handlers
 
-            //if the request is missing or in bad format, return (the error response was already sent)
-            if (httpRequest === null || httpRequest === undefined) {
-                return; // TODO - when was the message sent?
-            }
+        if (r[3].test(httpRequest.path)) {
 
+            foundMatch = true;
+
+            // This must be in here, since only here we know the matching resource
             httpRequest.updateParams(r[0]); // TODO - need to implement this method
 
+            var httpResponse = createResponse(httpRequest, clientSocket, closeConnection);
             var handler = r[1];
             handler(httpRequest, httpResponse, function() {
 
+                //TODO - how do you suggest we implement next() ?
+                // My idea is as following: this function could set a variable called 'doNext'
+                // to true. after this line, we check if (!doNext) then return, else, we automatically
+                // continue the for loop which started this call. (Everything stack-wise is ok I think).
+                // let me know what you think.
+
             });
 
-
-
-            // do as hujiwebserver onRequest arrival
-
-            // first : if we got here - than the request matches the specific
-            // resource - so we need to build the request (using the parser)
-            // next: call a function (yet to be built) updateParams
-            // which loads the params according to the resource
-
-            // finally - call the handler with the request (and response?),
-            // and create the next function as needed.
-
-            // Note: requestHandler is now in the for of:
-            // [ [resource, handler, "any", resourceAsRegex - call me about ths ]...[ ... ]]
+            //TODO as part of implementation
+            //if (!doNext) return;
         }
+    }
+
+
+    if (!foundMatch) { // no resource match the given request
+
+        new httpResponseModule(clientSocket)
+            .status(404)
+            .closeConnection(closeConnection)
+            .send("Error 404: Not Found");
     }
 }
 
 
 
-function isValidRequest(httpRequest, socket, closeConnection) {
+function isValidRequest(httpRequest) {
 
     if (!httpRequest.version || httpRequest.version === "" || httpRequest.version.indexOf("HTTP/1.") !== 0) {
         writeLog("hujiwebserver", "isValidRequest", "wrong http version", true);
-        sendErrorResponse(400, socket, closeConnection);
         return false;
     }
 
     // checks if httpRequest.method is valid (i.e, it exists in methodOptions map)
-    var isContained = false;
+    var methodOptions = ["options", "get", "head", "post", "put", "delete", "trace", "connect"];
+    return methodOptions.indexOf(httpRequest.method) !== -1;
 
-    for (var i=0; i < methodOptions.length; i++) {
-        if (methodOptions[i] === httpRequest.method) {
-            isContained = true;
-            break;
-        }
+}
+
+function shouldCloseConnection(httpRequest) {
+
+    if (httpRequest.version === "http/1.0" && httpRequest.header["connection"] !== "keep-alive") {
+        return true;
+    }
+    if (httpRequest.header["connection"] === "close") {
+        return true;
     }
 
-    if (!isContained) {
-        writeLog("hujiwebserver", "isValidRequest", "wrong method request", true);
-        sendErrorResponse(400, socket, closeConnection);
-        return false;
-    }
+    return false;
+}
 
-    return true;
+
+
+function createResponse(httpRequest, clientSocket, closeConnection) {
+
+    var response = new httpResponseModule(clientSocket);
+    response.closeConnection(closeConnection);
+
+    // send header part
+    response.set("content-type", identifyType(request.path)); //TODO - move identifyType
+    response.set("content-length", stats.size); // TODO - what should we do we stat?
+
+    //TODO what other fields in the response should we set?
+
+    return response;
 }
 
 
@@ -202,3 +249,36 @@ function isValidRequest(httpRequest, socket, closeConnection) {
 
 
 module.exports = DynamicServer;
+
+
+/**
+ OLD VERSION OF IS VALID REQUEST
+
+
+ function isValidRequest(httpRequest, socket, closeConnection) {
+
+    if (!httpRequest.version || httpRequest.version === "" || httpRequest.version.indexOf("HTTP/1.") !== 0) {
+        writeLog("hujiwebserver", "isValidRequest", "wrong http version", true);
+        return false;
+    }
+
+
+    var methodOptions = ["options", "get", "head", "post", "put", "delete", "trace", "connect"];
+
+    // checks if httpRequest.method is valid (i.e, it exists in methodOptions map)
+    var isContained = false;
+    for (var i in methodOptions) {
+        if (methodOptions[i] === httpRequest.method) {
+            isContained = true;
+            break;
+        }
+    }
+
+    if (!isContained) {
+        writeLog("hujiwebserver", "isValidRequest", "wrong method request", true);
+        return false;
+    }
+
+    return true;
+}
+ */

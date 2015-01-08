@@ -2,8 +2,9 @@
  * Created by Alon & Tal on 21/12/2014.
  */
 
+//TODO the request module is here, but the respone is in dynamicServer. Maybe unite them?
 var httpRequestModule = require('./HttpRequest');
-var httpResponseModule = require('./HttpResponse');
+
 var path = require('path');
 
 var reasonPharseContent = {

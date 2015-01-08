@@ -22,16 +22,19 @@ function HttpResponse(clientSocket) {
     return this;
 };
 
-HttpResponse.prototype.closeConnection = function closeConnection(shouldClose) {
 
-    this.shouldCloseConnection = shouldClose;
-    return this;
-};
 
 
 HttpResponse.prototype.status = function status(statusCode) {
 
     this.statusCode = statusCode;
+    return this;
+};
+
+
+HttpResponse.prototype.closeConnection = function closeConnection(shouldClose) {
+
+    this.shouldCloseConnection = shouldClose;
     return this;
 };
 
