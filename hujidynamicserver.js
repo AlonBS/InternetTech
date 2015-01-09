@@ -16,6 +16,8 @@ function DynamicServer(port) {
         // TODO - implement
     });
 
+
+    // resource, handler, type, map of params and their indices
     this.resourceHandlers = []
 };
 
@@ -40,7 +42,7 @@ function transformToRegex(r) {
 
 function setUpResourceAndHandler() {
 
-    var retVal = []
+    var retVal = [];
     var resource, requestHandler;
     if (arguments[1] === undefined) {
 
@@ -53,17 +55,56 @@ function setUpResourceAndHandler() {
         requestHandler = arguments[1]
     }
 
+    var params = {};
+    resource = extracrtParamsName(resource, params);
+
     retVal[0] = resource;
     retVal[1] = requestHandler;
     retVal[2] = arguments[2];
-    retVal[3] = transformToRegex(resource);
+    retVal[3] = params;
+    //retVal[3] = transformToRegex(resource);
 
     return retVal;
 }
 
+// verify that the resource starts with '/' and ends without '/'
+function prepareResource(resource) {
+    if (resource === undefined || resource === null) {
+        return "/";
+    }
+    if (resource.indexOf('/') !== 0) {
+        resource = "/" + resource;
+    }
 
+    if (resource.lastIndexOf('/') === resource.length-1) {
+        resource = resource.substr(0, resource.length-1);
+    }
+
+    return resource;
+}
+
+function extracrtParamsName(resource, params) {
+    console.log("received resource: " + resource)
+    resource = prepareResource(resource);
+    console.log("after preparation, resource is: " + resource);
+    var splitted = resource.split('/');
+    var paramNum = 1;
+
+    for (var i=0; i<splitted.length; i++) {
+        if (splitted[i] !== undefined && splitted[i] !== null && splitted[i].indexOf(':') === 0) {
+            var param = splitted[i].substr(1);
+            params[param] = paramNum++;
+
+            splitted[i] = "(.*)"
+        }
+    }
+
+    resource = '^' + splitted.join('/');
+    return resource;
+}
+
+// TODO: read http://expressjs.com/api.html#app.use
 DynamicServer.prototype.use = function () {
-
     var rh = setUpResourceAndHandler(arguments[0], arguments[1], "any");
     this.resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
@@ -176,13 +217,14 @@ function analyzeRequest(request, clientSocket) {
 
     var foundMatch = false;
     var doNext = false;
-    for (r in this.resourceHandlers) {  // dynamically search for  handlers
+    for (var r in this.resourceHandlers) {  // dynamically search for  handlers
 
-        if (r[3].test(httpRequest.path)) {
+        var matches = httpRequest.path.match(r[0]);
+        if (matches !== null && httpRequest.method === r[2]) {
 
             foundMatch = true;
             // This must be in here, since only here we know the matching resource
-            httpRequest.updateParams(r[0]); // TODO - need to implement this method
+            httpRequest.updateParams(matches, r[3]);
 
             var httpResponse = createResponse(httpRequest, clientSocket, closeConnection);
             var handler = r[1];
@@ -240,7 +282,7 @@ function createResponse(httpRequest, clientSocket, closeConnection) {
     // send header part
     response.set("content-type", identifyType(httpRequest.path));
 
-    //TODO what other fields in the response should we set?
+    //TODO what other fields in the response should we set? I don't think that something is missing..
     return response;
 }
 

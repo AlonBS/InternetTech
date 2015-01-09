@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require ('path');
 var parser = require ('./hujiparser.js');
 var requestModule = require ('./HttpRequest.js');
+var responseModule = require ('./HttpResponse.js');
 
 var rootFolder = "";
 
@@ -308,7 +309,7 @@ function run_tests() {
 //}
 
 
-var msg = "POST /name=tobi&a[b[c]]=d HTTP/1.1\n" +
+var msg = "POST /name=tobi HTTP/1.1\n" +
     "Content-Type: text/xml\n" +
     "Host: http://www.example.com:3000\n" +
     "Content-Length: 10\n\n" +
@@ -336,7 +337,50 @@ for (var val in request.header)
 
 console.log("header: " + header);
 console.log("-----------------------");
-console.log(webServer.static("folder"));
+
+// TODO the following line doesn't work !
+
+webServer.start(8888, function() {
+    console.log("hi");
+    //webServer.static("c:/users/:name/tal");
+});
+
+
+/*
+var res = new responseModule(null).status(500).set('content-type', 'txt/html').set('content-length', 16);
+res.body = "this is the body";
+
+var resAsStr = parser.stringify(res);
+
+console.log("resAsStr:\n" + resAsStr);
+console.log("-----------------------");
+var resource = '/a(bc)?d';
+var matches = "/sd/ad/es".match(resource);
+
+console.log(matches);
+
+console.log("-----------------------");
+var res1 = "/x/:name/:last/z/:city";
+var path = "/x/tal/orenstein/z/rehovot/";
+
+var params = {};
+var newResorece = extracrtParamsName(res1, params);
+
+console.log("new resource is: " + newResorece);
+
+matches = path.match(newResorece);
+var correctParams = {};
+for (var name in params) {
+    var i = params[name];
+    correctParams[name] = matches[i];
+}
+
+for (var name in correctParams) {
+    console.log("param: " + name + ", value: " + correctParams[name]);
+}
+*/
+
+
 //console.log("order=" + request.query.order + "; shoe[color]=" + request.query.shoe.color + "; shoe[type]=" + request.query.shoe.type);
 
 console.log("done");

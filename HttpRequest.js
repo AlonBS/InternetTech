@@ -14,13 +14,13 @@ function HttpRequest(method, version, header,
 
     this.method = method;
     //this.requestURI = requestURI;
-    this.params = {}; // TODO
+    this.params = {};
     this.version = version;
     this.header = header;
-    this.body = body; // TODO verify default is null
+    this.body = body;
     this.leftData = leftData;
 
-    this.query = query; //TODO should be map
+    this.query = query;
     this.cookies = cookies;
     this.path = path;
     this.host = host;
@@ -63,9 +63,12 @@ HttpRequest.prototype.is = function(type) {
 // /user/*/eti
 
 // get /user/iosi
-HttpRequest.prototype.updateParams = function(resource) {
+HttpRequest.prototype.updateParams = function(matches, paramsNames) {
 
-    //TODO - this is harder than is looks, no?
+    for (var name in paramsNames) {
+        var index = paramsNames[name];
+        this.params[name] = matches[index];
+    }
 };
 
 

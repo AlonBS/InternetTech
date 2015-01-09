@@ -8,7 +8,7 @@ var fs = require('fs');
 var path = require ('path');
 
 var serverStaticRootFolder = "";
-var server;   // TODO - currently - only one server is supported. (this will be enclosed as a private member of hujiwebServer)
+   // TODO - currently - only one server is supported. (this will be enclosed as a private member of hujiwebServer)
 var serversNextId = 0; //TODO - needed
 var servers = {};   // TODO - needed?
 
@@ -18,7 +18,7 @@ var servers = {};   // TODO - needed?
 String.prototype.regexIndexOf = function(regex, startpos) {
     var indexOf = this.substring(startpos || 0).search(regex);
     return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
-}
+};
 
 
 
@@ -43,13 +43,14 @@ exports.static = function (rootFolder) {
         if (!fs.existsSync(serverStaticRootFolder)) {
             writeLog("hujiwebserver", "static", "invalid root folder", true);
 
+            return;
+
             // TODO: which error we need to send to user?
             //callBack("invalid server root folder");
         }
     } catch (e) {
         //callBack("invalid server root folder");
     }
-
 
     server.use(serverStaticRootFolder, staticResourceHandler);
 };

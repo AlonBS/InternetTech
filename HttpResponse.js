@@ -104,7 +104,8 @@ HttpResponse.prototype.send = function(body) {
                     this.set('content-type', 'application/octet-stream');
                 }
 
-                this.body = body.toString()
+                this.body = body.toString();
+                this.set('content-length', body.length);
             }
             else {
                 this.json(body);
@@ -116,7 +117,6 @@ HttpResponse.prototype.send = function(body) {
     var msg = this.parser.stringify(this);
     this.clientSocket.write(msg);
 
-    // TODO - Tal added it to clarify the code
     if (this.shouldCloseConnection)
         this.clientSocket.end();
 

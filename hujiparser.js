@@ -14,6 +14,7 @@ var reasonPharseContent = {
     404 : "Not Found",
     413 : "Request Entity Too Large",
     414 : "Request-URI Too Large",
+    500 : "Internal Error",
     505 : "HTTP Version not supported",
 
     def: "Internal Error"
@@ -43,6 +44,7 @@ exports.parse = function (dataAsString) {
             var queryParams = path.substr(index+1);
             query = fillQueryParams(queryParams);
             path = path.substr(0, index);
+            //path = path.normalize(path);
         }
 
         version = requestLineMatch[5].toUpperCase();
