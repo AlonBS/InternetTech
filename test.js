@@ -3,7 +3,7 @@ var webServer = require('./hujiwebserver.js');
 var net = require('net');
 var http = require('http');
 var fs = require('fs');
-var path = require ('path');
+var pathModule = require ('path');
 var parser = require ('./hujiparser.js');
 var requestModule = require ('./HttpRequest.js');
 var responseModule = require ('./HttpResponse.js');
@@ -219,7 +219,7 @@ function test_4() {
 
 function run_tests() {
     try {
-        rootFolder = path.resolve(rootFolder);
+        rootFolder = pathModule.resolve(rootFolder);
 
         // verify that the received root folder is exists
         if (!fs.existsSync(rootFolder)) {
@@ -309,7 +309,7 @@ function run_tests() {
 //}
 
 
-var msg = "POST /name=tobi HTTP/1.1\n" +
+var msg = "GET http://www.example.com/www/index.html?name=tobi HTTP/1.1\n" +
     "Content-Type: text/xml\n" +
     "Host: http://www.example.com:3000\n" +
     "Content-Length: 10\n\n" +
@@ -338,15 +338,50 @@ for (var val in request.header)
 console.log("header: " + header);
 console.log("-----------------------");
 
-// TODO the following line doesn't work !
-
-webServer.start(8888, function() {
-    console.log("hi");
-    //webServer.static("c:/users/:name/tal");
-});
-
+//webServer.start(8888, function() {
+//    console.log("hi");
+//    //webServer.static("c:/users/:name/tal");
+//});
 
 /*
+function prepareResource(resource) {
+    if (resource === undefined || resource === null) {
+        return "/";
+    }
+    if (resource.indexOf('/') !== 0) {
+        resource = "/" + resource;
+    }
+
+    if (resource.lastIndexOf('/') === resource.length-1) {
+        resource = resource.substr(0, resource.length-1);
+    }
+
+    resource = pathModule.normalize(resource);
+
+    return resource;
+}
+
+function extracrtParamsName(resource, params) {
+    console.log("received resource: " + resource)
+    resource = prepareResource(resource);
+    console.log("after preparation, resource is: " + resource);
+    var splitted = resource.split('/');
+    var paramNum = 1;
+
+    for (var i=0; i<splitted.length; i++) {
+        if (splitted[i] !== undefined && splitted[i] !== null && splitted[i].indexOf(':') === 0) {
+            var param = splitted[i].substr(1);
+            params[param] = paramNum++;
+
+            splitted[i] = "([^\/]*)"
+        }
+    }
+
+    resource = '^' + splitted.join('\\');
+    return resource;
+}
+
+
 var res = new responseModule(null).status(500).set('content-type', 'txt/html').set('content-length', 16);
 res.body = "this is the body";
 
@@ -360,7 +395,7 @@ var matches = "/sd/ad/es".match(resource);
 console.log(matches);
 
 console.log("-----------------------");
-var res1 = "/x/:name/:last/z/:city";
+var res1 = "x/:name/:last/z/:city";
 var path = "/x/tal/orenstein/z/rehovot/";
 
 var params = {};
@@ -378,8 +413,19 @@ for (var name in params) {
 for (var name in correctParams) {
     console.log("param: " + name + ", value: " + correctParams[name]);
 }
-*/
 
+console.log("-----------------------");
+var str2 = "http://///www.example.com/articles/index.html?name=tal&a[b[c]]=d  ";
+str2 = pathModule.normalize(str2);
+console.log(str2);
+var uriRegex = '^[^\\\\\\.]*[\\\\]?[^\\\\]*([\\\\][^\\?#]*)(\\?|#)?(.*)';
+var matches2 = str2.toLowerCase().trim().match(uriRegex);
+
+if (matches2 !== null)
+    console.log("path: " + matches2[1] + ", sign: " + matches2[2] + ", query: " + matches2[3]);
+else
+    console.log("null");
+*/
 
 //console.log("order=" + request.query.order + "; shoe[color]=" + request.query.shoe.color + "; shoe[type]=" + request.query.shoe.type);
 

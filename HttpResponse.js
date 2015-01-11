@@ -113,6 +113,9 @@ HttpResponse.prototype.send = function(body) {
             break;
     }
 
+    if (this.get('content-length') === undefined) {
+        this.set('content-length', 0);
+    }
 
     var msg = this.parser.stringify(this);
     this.clientSocket.write(msg);

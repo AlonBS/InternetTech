@@ -5,7 +5,7 @@
 //TODO the request module is here, but the respone is in dynamicServer. Maybe unite them?
 var httpRequestModule = require('./HttpRequest');
 
-var path = require('path');
+var pathModule = require('path');
 
 var reasonPharseContent = {
     200 : "OK",
@@ -35,25 +35,33 @@ exports.parse = function (dataAsString) {
     if (requestLineMatch != null) {
         method = requestLineMatch[1].toLowerCase();
 
-        // For a static request the URL path specified by the client is relative to the web server's root directory.
-        path = requestLineMatch[2].toLowerCase().trim();
-        //requestURI = path.normalize(requestURI);
+        requestLineMatch[2] = pathModule.normalize(requestLineMatch[2].toLowerCase().trim());
 
-        var index = path.indexOf('?');
-        if (index !== -1) {
-            var queryParams = path.substr(index+1);
-            query = fillQueryParams(queryParams);
-            path = path.substr(0, index);
-            //path = path.normalize(path);
+        var uriRegex = '^[^\\\\\\.]*[\\\\]?[^\\\\]*([\\\\][^\\?#]*)(\\?|#)?(.*)';
+        var matches = requestLineMatch[2].match(uriRegex);
+
+        path = matches[1];
+
+        if (matches[2] === '?') {
+            query = fillQueryParams(matches[3])
         }
+
+
+        //var index = path.indexOf('?');
+        //if (index !== -1) {
+        //    var queryParams = path.substr(index+1);
+        //    query = fillQueryParams(queryParams);
+        //    path = path.substr(0, index);
+        //    //path = path.normalize(path);
+        //}
 
         version = requestLineMatch[5].toUpperCase();
         console.log("version is: " + version);
         if (version.indexOf("HTTP\/") == 0) {
-            protocol = "http";
+            protocol = "HTTP";
         }
         else if (version.indexOf("HTTPS\/") == 0) {
-            protocol = "https";
+            protocol = "HTTPS";
         }
 
     }
@@ -147,7 +155,8 @@ function addToQuery(key, val, query) {
 
 
 exports.stringify = function(httpResponse) {
-    var httpResponseAsString = "HTTP/1.1 " + httpResponse.statusCode + " " + reasonPharseContent[httpResponse.statusCode] + "\r\n";
+    var httpResponseAsString = "HTTP/1.1 " + httpResponse.statusCode + " " +
+        reasonPharseContent[httpResponse.statusCode] + "\r\n";
 
     for (var headerKey in httpResponse.header) {
         httpResponseAsString += headerKey + ": " + httpResponse.header[headerKey] + "\r\n";

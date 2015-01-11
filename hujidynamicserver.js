@@ -5,6 +5,7 @@
 var hujiNet = require('./hujinet.js');
 var parser = require('./hujiparser.js');
 var httpResponseModule = require('./HttpResponse');
+var pathModule = require('path');
 
 
 
@@ -30,12 +31,12 @@ DynamicServer.prototype.stop = function() {
 };
 
 
-function transformToRegex(r) {
-
-    var endsWithSlash = r.indexOf('/', r.length - 1) !== -1;
-    var suffix = endsWithSlash ? '?.*$' : '/?.*$';
-    return new RegExp( '^' + r.replace(/(:[a-zA-Z0-9]+|\*)/g, ".*") + suffix, "g");
-}
+//function transformToRegex(r) {
+//
+//    var endsWithSlash = r.indexOf('/', r.length - 1) !== -1;
+//    var suffix = endsWithSlash ? '?.*$' : '/?.*$';
+//    return new RegExp( '^' + r.replace(/(:[a-zA-Z0-9]+|\*)/g, ".*") + suffix, "g");
+//}
 
 
 
@@ -80,6 +81,7 @@ function prepareResource(resource) {
         resource = resource.substr(0, resource.length-1);
     }
 
+    resource = pathModule.normalize(resource);
     return resource;
 }
 
@@ -95,11 +97,11 @@ function extracrtParamsName(resource, params) {
             var param = splitted[i].substr(1);
             params[param] = paramNum++;
 
-            splitted[i] = "(.*)"
+            splitted[i] = "([^\/]*)"
         }
     }
 
-    resource = '^' + splitted.join('/');
+    resource = '^' + splitted.join('\\');
     return resource;
 }
 
@@ -167,7 +169,7 @@ DynamicServer.prototype.identifyType = function identifyType(uri) {
         default:
             return "text/plain";
     }
-}
+};
 
 
 function onRequestArrival(request, clientSocket) {
