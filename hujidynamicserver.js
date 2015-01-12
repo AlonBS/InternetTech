@@ -7,6 +7,8 @@ var parser = require('./hujiparser.js');
 var httpResponseModule = require('./HttpResponse');
 var pathModule = require('path');
 
+var resourceHandlers = []
+
 
 
 
@@ -17,9 +19,6 @@ function DynamicServer(port) {
         // TODO - implement
     });
 
-
-    // resource, handler, type, map of params and their indices
-    this.resourceHandlers = []
 };
 
 
@@ -57,7 +56,7 @@ function setUpResourceAndHandler() {
     }
 
     var params = {};
-    resource = extracrtParamsName(resource, params);
+    resource = extractParamsName(resource, params);
 
     retVal[0] = resource;
     retVal[1] = requestHandler;
@@ -85,7 +84,8 @@ function prepareResource(resource) {
     return resource;
 }
 
-function extracrtParamsName(resource, params) {
+
+function extractParamsName(resource, params) {
     console.log("received resource: " + resource)
     resource = prepareResource(resource);
     console.log("after preparation, resource is: " + resource);
@@ -108,35 +108,35 @@ function extracrtParamsName(resource, params) {
 // TODO: read http://expressjs.com/api.html#app.use
 DynamicServer.prototype.use = function () {
     var rh = setUpResourceAndHandler(arguments[0], arguments[1], "any");
-    this.resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
+    resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
 
 
 DynamicServer.prototype.get = function () {
 
     var rh = setUpResourceAndHandler(arguments[0], arguments[1],"get");
-    this.resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
+    resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
 
 
 DynamicServer.prototype.post = function (resource , requestHandler) {
 
     var rh = setUpResourceAndHandler(arguments[0], arguments[1],"post");
-    this.resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
+    resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
 
 
 DynamicServer.prototype.delete = function (resource , requestHandler) {
 
     var rh = setUpResourceAndHandler(arguments[0], arguments[1],"delete");
-    this.resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
+    resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
 
 
 DynamicServer.prototype.put = function (resource , requestHandler) {
 
     var rh = setUpResourceAndHandler(arguments[0], arguments[1],"put");
-    this.resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
+    resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
 
 
@@ -219,7 +219,7 @@ function analyzeRequest(request, clientSocket) {
 
     var foundMatch = false;
     var doNext = false;
-    for (var r in this.resourceHandlers) {  // dynamically search for  handlers
+    for (var r in resourceHandlers) {  // dynamically search for  handlers
 
         var matches = httpRequest.path.match(r[0]);
         if (matches !== null && httpRequest.method === r[2]) {

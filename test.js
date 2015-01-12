@@ -361,7 +361,7 @@ function prepareResource(resource) {
     return resource;
 }
 
-function extracrtParamsName(resource, params) {
+function extractParamsName(resource, params) {
     console.log("received resource: " + resource)
     resource = prepareResource(resource);
     console.log("after preparation, resource is: " + resource);
@@ -399,7 +399,7 @@ var res1 = "x/:name/:last/z/:city";
 var path = "/x/tal/orenstein/z/rehovot/";
 
 var params = {};
-var newResorece = extracrtParamsName(res1, params);
+var newResorece = extractParamsName(res1, params);
 
 console.log("new resource is: " + newResorece);
 

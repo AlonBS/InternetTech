@@ -55,6 +55,7 @@ exports.static = function (rootFolder) {
     server.use(serverStaticRootFolder, staticResourceHandler);
 };
 
+
 var staticResourceHandler = function (request, response, next) {
 
     // checks for unauthorized access: if the file path starts with the given server root folder.
@@ -114,6 +115,54 @@ var staticResourceHandler = function (request, response, next) {
         })
     })
 };
+
+
+
+exports.myUse = function () {
+
+    this.toString = function() {
+        return "EX"; // TODO THIS IS NOT GOOD
+    };
+
+    server.post('/uploads/secured', myUseResourceHandler);
+};
+
+
+var myUseResourceHandler = function (request, response) {
+
+    // opens the file as a writable stream
+    var writeToFile = fs.createWriteStream(request.path); //TODO we jave a problem since we don't no the 'path'
+
+    // waits until we know the writable stream is actually valid before piping
+    writeToFile.on("open", function() {
+
+        writeToFile.write(request.body, function () {
+
+            writeToFile.end();
+
+            // we always close connection once a file has being uploaded
+            response.closeConnection(true);
+            response.status(200).send("File uploaded successfully.");
+
+        });
+    });
+
+
+    // catches any errors that happen while creating the readable stream (usually invalid names)
+    writeToFile.on("error", function(err) {
+        response.status(500).send("Unable to upload the file.");
+        writeLog("hujiwebserver", "myUseResourceHandler", "An error had occurred: " + err, true);
+    });
+
+}
+
+
+
+
+
+
+
+
 
 
 exports.start = function (port, callBack) {
