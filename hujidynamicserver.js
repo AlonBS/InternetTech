@@ -222,7 +222,7 @@ function analyzeRequest(request, clientSocket) {
     for (var r in resourceHandlers) {  // dynamically search for  handlers
 
         var matches = httpRequest.path.match(r[0]);
-        if (matches !== null && httpRequest.method === r[2]) {
+        if (matches !== null && (httpRequest.method === r[2]) || r[2] === 'any') {
 
             foundMatch = true;
             // This must be in here, since only here we know the matching resource
@@ -291,4 +291,3 @@ function createResponse(httpRequest, clientSocket, closeConnection) {
 
 
 module.exports = DynamicServer;
-
