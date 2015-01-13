@@ -69,16 +69,51 @@ HttpResponse.prototype.set = function(field, value) {
     return this;
 };
 
+
 HttpResponse.prototype.get = function(attr) {
 
     return this.header[attr]
 };
 
 
-HttpResponse.prototype.cookie = function(name, value, options) {
+HttpResponse.prototype.cookie = function (name, value, options) {
 
-    //TODO - implemennt
+    options = options ? options : {};
+    var chValue;
+    if (typeof value === 'object') {
+        value = 'j:' + JSON.stringify(value);
+    }
 
+    chValue =  [name + '=' + value];
+
+    if (options.domain) chValue.push('domain=' + options.domain);
+
+    if (options.path === undefined) {
+        options.path = '/';
+        chValue.push('path=' + options.path);
+    }
+    else {
+        chValue.push('path=' + options.path);
+    }
+
+    if (options.secure) chValue.push('secure=true');
+
+    if (options.expires) chValue.push('expires=' + options.expires.toUTCString());
+
+    if (options.maxAge) {
+
+        options.expires = new Date(Date.now() + options.maxAge);
+        options.maxAge /= 1000; // in seconds
+        chValue.push('max-age=' + options.maxAge);
+    }
+
+    if (options.httpOnly) chValue.push('httponly=true');
+    // according to forum we should not support signed-cookie
+
+    chValue = chValue.join('; ');
+    this.set('set-cookie', chValue);
+
+    return this;
 };
 
 

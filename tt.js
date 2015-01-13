@@ -164,28 +164,20 @@ function runTests() {
 
     setUpServerAndUseCases();
 
-    //test1('./generalDesign')
+    test1('./generalDesign')
 
 
 }
 
-var path = require('path')
+runTests();
 
 
 
-var a = path.normalize("/ex2/index.html");
 
-var b = path.normalize('^\\\\ex2');
-console.log("B: " + b);
 
-var b = new RegExp("^\\ex2");
 
-console.log(a);
-console.log(b);
 
-var c = a.match(b);
 
-console.log(c);
 
 
 
