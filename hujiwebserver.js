@@ -163,12 +163,12 @@ var staticResourceHandler = function (request, response, next) {
         //});
 
         // catches any errors that happen while creating the readable stream (usually invalid names)
-        fileAsAStream.on("error", function(err) {
-            response.status(404).send();
-            writeLog("hujiwebserver", "staticResourceHandler", "An error had occurred: " + err, true);
-
-            //sendErrorResponse(404, socket, closeConnection);
-        })
+        //fileAsAStream.on("error", function(err) {
+        //    response.status(404).send();
+        //    writeLog("hujiwebserver", "staticResourceHandler", "An error had occurred: " + err, true);
+        //
+        //    //sendErrorResponse(404, socket, closeConnection);
+        //})
     })
 };
 
