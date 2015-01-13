@@ -22,10 +22,7 @@ var reasonPharseContent = {
 
 exports.parse = function (dataAsString) {
 
-    console.log(dataAsString)
-
-    var lines = dataAsString.split(/[\n\r][\n\r]?/);
-    console.log(lines);
+    var lines = dataAsString.split(/[\r\n][\r\n]?/);
 
     var i=0;
 
@@ -33,8 +30,6 @@ exports.parse = function (dataAsString) {
     var requestLineMatch = requestLineRegex.exec(lines[i++]);
 
     var method, path, host, query = {}, version, protocol, header = {}, body, leftData;
-
-    console.log("MATHC!!!!!!!!! " + requestLineMatch);
 
     // parse the request line
     if (requestLineMatch != null) {
@@ -60,7 +55,7 @@ exports.parse = function (dataAsString) {
         //}
 
         version = requestLineMatch[5].toUpperCase();
-        console.log("version is: " + version);
+
         if (version.indexOf("HTTP\/") == 0) {
             protocol = "HTTP";
         }
@@ -119,7 +114,6 @@ exports.parse = function (dataAsString) {
 
     // TODO: complete implemnatation !!
 
-    console.log("BODY: " + body);
     return new httpRequestModule(method, version, header, body, leftData, query, null /* cookies*/, path, host, protocol);
 };
 

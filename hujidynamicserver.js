@@ -50,6 +50,7 @@ function setUpResourceAndHandler() {
     }
 
     var params = {};
+    resource = resource.toLowerCase();
     resource = extractParamsName(resource, params);
 
     retVal[0] = resource;
@@ -95,7 +96,9 @@ function extractParamsName(resource, params) {
         }
     }
 
-    resource = '^\\' + splitted.join('\\');
+    resource = '^' + splitted.join('\\');
+    resource = resource.replace(/\\/g, '\\\\');
+
     return resource;
 }
 
@@ -136,9 +139,8 @@ DynamicServer.prototype.put = function (resource , requestHandler) {
 
 
 var identifyType = function (uri) {
-    console.log("uri: " + uri);
     var  fileType = uri.substring(uri.lastIndexOf('.') + 1).toLowerCase();
-    console.log("type: " + fileType);
+
     switch (fileType){
 
         case "js":
@@ -230,15 +232,15 @@ function analyzeRequest(request, clientSocket) {
 
         var matches = httpRequest.path.match(r[0]); // r[0]
         //console.log(matches);
+        //cle.log("------")
         if (matches !== null && (httpRequest.method === r[2] || r[2] === 'any' ) ) {
 
             foundMatch = true;
             // This must be in here, since only here we know the matching resource
             httpRequest.updateParams(matches, r[3]);
 
-            console.log("HEREHRUERHUEHRU 1");
             var httpResponse = createResponse(httpRequest, clientSocket, closeConnection);
-            console.log("HEREHRUERHUEHRU 2");
+
             var handler = r[1];
 
             handler(httpRequest, httpResponse, function() {
@@ -291,7 +293,6 @@ function createResponse(httpRequest, clientSocket, closeConnection) {
 
     var response = new httpResponseModule(clientSocket);
     response.closeConnection(closeConnection);
-    console.log("333333: " + httpRequest.path);
 
     var type = identifyType(httpRequest.path);
 

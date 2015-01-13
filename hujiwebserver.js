@@ -79,11 +79,6 @@ exports.static = function (rootFolder) {
 
 var staticResourceHandler = function (request, response, next) {
 
-    console.log("aaa 0");
-    console.log("path: " + request.path);
-    console.log("serverStatic: " + serverStaticRootFolder);
-    console.log(request.path.indexOf(shortServerStaticRootFolder));
-
     var fullPath = getFullPath(request.path);
 
     // checks for unauthorized access: if the file path starts with the given server root folder.
@@ -92,10 +87,8 @@ var staticResourceHandler = function (request, response, next) {
 
         //sendErrorResponse(401, socket, closeConnection);
         writeLog("hujiwebserver", "staticResourceHandler", "unauthorized access to: " + request.path, true);
-        console.log("aaa 0.5");
         return;
     }
-    console.log("aaa 1");
 
 
     fs.stat(fullPath, function (err, stats) {
@@ -108,7 +101,7 @@ var staticResourceHandler = function (request, response, next) {
             return;
         }
 
-        fs.readFile(fullPath, 'utf8', function (err, data) {
+        fs.readFile(fullPath, 'ascii', function (err, data) {
 
             if (err) {
                 response.status(404).send();
@@ -185,7 +178,9 @@ exports.myUse = function (resource) {
 var myUseResourceHandler = function (request, response, next) {
 
     // opens the file as a writable stream
-    var writeToFile = fs.createWriteStream('/uploads/secured'); //TODO we jave a problem since we don't no the 'path'
+    var fullPath = getFullPath(request.path);
+
+    var writeToFile = fs.createWriteStream(fullPath); //TODO we jave a problem since we don't no the 'path'
 
     // waits until we know the writable stream is actually valid before piping
     writeToFile.on("open", function() {
@@ -210,7 +205,7 @@ var myUseResourceHandler = function (request, response, next) {
 
         next();
     });
-}
+};
 
 
 
@@ -229,7 +224,6 @@ exports.start = function (port, callBack) { // callBack which defines usage of s
         setTimeout( callBack(undefined, server), 500);     // This will allow the server to set up properly
     }
     catch(e) {
-        console.log("IOSI");
         setTimeout( callBack(e.message), 500);
     }
 };
