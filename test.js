@@ -133,7 +133,7 @@ function test_3() {
     test_1c_helper('PuT', 400)
 }
 
-
+http://www.example.com/alon/index.html
 function test_1c_helper(method, time) {
 
     setTimeout(function(){
@@ -343,7 +343,7 @@ console.log("-----------------------");
 //    //webServer.static("c:/users/:name/tal");
 //});
 
-/*
+
 function prepareResource(resource) {
     if (resource === undefined || resource === null) {
         return "/";
@@ -425,9 +425,15 @@ if (matches2 !== null)
     console.log("path: " + matches2[1] + ", sign: " + matches2[2] + ", query: " + matches2[3]);
 else
     console.log("null");
-*/
+
 
 //console.log("order=" + request.query.order + "; shoe[color]=" + request.query.shoe.color + "; shoe[type]=" + request.query.shoe.type);
+
+var reg = "^\ex2";
+var res = "\ex2\index.html";
+
+var mat = res.match(reg);
+console.log(mat);
 
 console.log("done");
 

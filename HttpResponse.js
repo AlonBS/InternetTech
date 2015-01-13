@@ -120,8 +120,9 @@ HttpResponse.prototype.send = function(body) {
     var msg = this.parser.stringify(this);
     this.clientSocket.write(msg);
 
-    if (this.shouldCloseConnection)
+    if (this.shouldCloseConnection) {
         this.clientSocket.end();
+    }
 
     return this;
 };

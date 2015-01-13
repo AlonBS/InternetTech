@@ -95,7 +95,7 @@ function extractParamsName(resource, params) {
         }
     }
 
-    resource = '^' + splitted.join('\\');
+    resource = '^\\' + splitted.join('\\');
     return resource;
 }
 
@@ -135,11 +135,10 @@ DynamicServer.prototype.put = function (resource , requestHandler) {
 };
 
 
-
-
-DynamicServer.prototype.identifyType = function identifyType(uri) {
-
+var identifyType = function (uri) {
+    console.log("uri: " + uri);
     var  fileType = uri.substring(uri.lastIndexOf('.') + 1).toLowerCase();
+    console.log("type: " + fileType);
     switch (fileType){
 
         case "js":
@@ -165,6 +164,8 @@ DynamicServer.prototype.identifyType = function identifyType(uri) {
             return "text/plain";
     }
 };
+
+DynamicServer.prototype.identifyType = identifyType;
 
 
 function onRequestArrival(request, clientSocket) {
@@ -223,23 +224,23 @@ function analyzeRequest(request, clientSocket) {
         //console.log("R2: " + r[2])
         //console.log("REQUEST:" + httpRequest.method);
 
-        console.log("PATH" + httpRequest.path);
-        console.log("R0 " + r[0]);
+        //console.log("PATH:" + httpRequest.path);
+        //console.log("R0:" + r[0]);
 
 
-        var matches = httpRequest.path.match('^\\\\ex2'); // r[0]
-        console.log(matches);
+        var matches = httpRequest.path.match(r[0]); // r[0]
+        //console.log(matches);
         if (matches !== null && (httpRequest.method === r[2] || r[2] === 'any' ) ) {
-
-            console.log("HEREHRUERHUEHRU");
-
 
             foundMatch = true;
             // This must be in here, since only here we know the matching resource
             httpRequest.updateParams(matches, r[3]);
 
+            console.log("HEREHRUERHUEHRU 1");
             var httpResponse = createResponse(httpRequest, clientSocket, closeConnection);
+            console.log("HEREHRUERHUEHRU 2");
             var handler = r[1];
+
             handler(httpRequest, httpResponse, function() {
                 // important for this variable to remain in this function stack
                 // to support multi-threading calls of this function
@@ -290,9 +291,12 @@ function createResponse(httpRequest, clientSocket, closeConnection) {
 
     var response = new httpResponseModule(clientSocket);
     response.closeConnection(closeConnection);
+    console.log("333333: " + httpRequest.path);
+
+    var type = identifyType(httpRequest.path);
 
     // send header part
-    response.set("content-type", identifyType(httpRequest.path));
+    response.set("content-type", type);
 
     //TODO what other fields in the response should we set? I don't think that something is missing..
     return response;

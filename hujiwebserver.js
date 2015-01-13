@@ -8,6 +8,7 @@ var fs = require('fs');
 var path = require ('path');
 
 var serverStaticRootFolder = "";
+var shortServerStaticRootFolder = "";
    // TODO - currently - only one server is supported. (this will be enclosed as a private member of hujiwebServer)
 var serversNextId = 0; //TODO - needed
 var servers = {};   // TODO - needed?
@@ -21,6 +22,15 @@ String.prototype.regexIndexOf = function(regex, startpos) {
     var indexOf = this.substring(startpos || 0).search(regex);
     return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
 };
+
+function getFullPath(shortPath) {
+
+    if (shortPath.indexOf('\\') === 0) {
+        shortPath = "." + shortPath;
+    }
+
+    return path.resolve(shortPath);
+}
 
 
 
@@ -41,12 +51,14 @@ exports.static = function (rootFolder) {
 
     rootFolder = path.normalize(rootFolder);
 
-    if (rootFolder.indexOf('\\') === 0) {
-        var fullRoot = "." + rootFolder;
-    }
+    shortServerStaticRootFolder = rootFolder;
+
+    //if (rootFolder.indexOf('\\') === 0) {
+    //    var fullRoot = "." + rootFolder;
+    //}
 
     try {
-        serverStaticRootFolder = path.resolve(fullRoot);
+        serverStaticRootFolder = getFullPath(rootFolder);
 
         // verify that the received root folder  exists
         if (!fs.existsSync(serverStaticRootFolder)) {
@@ -67,35 +79,42 @@ exports.static = function (rootFolder) {
 
 var staticResourceHandler = function (request, response, next) {
 
+    console.log("aaa 0");
+    console.log("path: " + request.path);
+    console.log("serverStatic: " + serverStaticRootFolder);
+    console.log(request.path.indexOf(shortServerStaticRootFolder));
+
+    var fullPath = getFullPath(request.path);
 
     // checks for unauthorized access: if the file path starts with the given server root folder.
-    if (request.path.indexOf(serverStaticRootFolder) != 0) {
-        response.status(401).send(errBody[401]);
+    if (fullPath.indexOf(serverStaticRootFolder) != 0) {
+        response.status(401).send();
 
         //sendErrorResponse(401, socket, closeConnection);
         writeLog("hujiwebserver", "staticResourceHandler", "unauthorized access to: " + request.path, true);
+        console.log("aaa 0.5");
         return;
     }
+    console.log("aaa 1");
 
 
-    fs.stat(request.path, function (err, stats) {
+    fs.stat(fullPath, function (err, stats) {
 
         if (err || !stats.isFile()) {
-            response.status(404).send(errBody[404]);
-            writeLog("hujiwebserver", "staticResourceHandler", request.path + " is not a file or doesn't exist", true);
+            response.status(404).send();
+            writeLog("hujiwebserver", "staticResourceHandler", fullPath + " is not a file or doesn't exist", true);
 
             //sendErrorResponse(404, socket, closeConnection);
             return;
         }
 
+        console.log("aaa 2: " + fullPath);
 
+        fs.readFile(fullPath, 'utf8', function (err, data) {
 
-        // opens the file as a readable stream
-        var fileAsAStream = fs.createReadStream(serverStaticRootFolder + request.path);
-
-        // waits until we know the readable stream is actually valid before piping
-        fileAsAStream.on("open", function() {
-
+            if (err) {
+                se
+            }
 
             // TODO - to tal: I think you have a mistake here. shouldn't it be:
             // TODO - why do you set response.closeConnection to false?
@@ -103,26 +122,49 @@ var staticResourceHandler = function (request, response, next) {
             response.closeConnection(false);
 
             // send header part
-            // TODO - lower case perhaps?
-            response.set("Content-Type", server.identifyType(request.path));
-            response.set("Content-Length", stats.size);
-            response.send();
-
-            //var response = httpObjects.createHttpResponse(version, "200", reasonPharseContent[200],
-            //    {"Content-Type" : identifyType(request.path), "Content-Length" : stats.size},"");
-            //
-            //socket.write(parser.stringify(response));
-
-            // send 'body' content
-            fileAsAStream.pipe(request.clientSocket, {end: false});
+            response.set("content-type", server.identifyType(request.path));
+            response.set("content-length", stats.size);
+            response.send(data);
 
             if (closeConnection)
                 request.clientSocket.end();
+
         });
+
+        // opens the file as a readable stream
+        //var fileAsAStream = fs.createReadStream(fullPath);
+        //
+        //console.log("aaa 3");
+        //
+        //// waits until we know the readable stream is actually valid before piping
+        //fileAsAStream.on("open", function() {
+        //
+        //
+        //    // TODO - to tal: I think you have a mistake here. shouldn't it be:
+        //    // TODO - why do you set response.closeConnection to false?
+        //    var closeConnection = response.shouldCloseConnection;
+        //    response.closeConnection(false);
+        //
+        //    // send header part
+        //    response.set("content-type", server.identifyType(request.path));
+        //    response.set("content-length", stats.size);
+        //    response.send();
+        //
+        //    //var response = httpObjects.createHttpResponse(version, "200", reasonPharseContent[200],
+        //    //    {"Content-Type" : identifyType(request.path), "Content-Length" : stats.size},"");
+        //    //
+        //    //socket.write(parser.stringify(response));
+        //
+        //    // send 'body' content
+        //    fileAsAStream.pipe(request.clientSocket, {end: false});
+        //
+        //    if (closeConnection)
+        //        request.clientSocket.end();
+        //});
 
         // catches any errors that happen while creating the readable stream (usually invalid names)
         fileAsAStream.on("error", function(err) {
-            response.status(404).send(errBody[404]);
+            response.status(404).send();
             writeLog("hujiwebserver", "staticResourceHandler", "An error had occurred: " + err, true);
 
             //sendErrorResponse(404, socket, closeConnection);
