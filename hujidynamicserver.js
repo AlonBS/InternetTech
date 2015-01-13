@@ -7,16 +7,19 @@ var parser = require('./hujiparser.js');
 var httpResponseModule = require('./HttpResponse');
 var pathModule = require('path');
 
-var resourceHandlers = []
+var resourceHandlers = []; // [resource, handler, type, params]
 
 
 
 
 // square.js
-function DynamicServer(port) {
+function DynamicServer(port) { // TODO SHOW TAL
 
     this.listener = hujiNet.createServer(port, onRequestArrival, function(err){
-        // TODO - implement
+        if (err) {
+            console.log(err);
+            return new Error(err); // throw err;
+        }
     });
 
 };
@@ -28,15 +31,6 @@ DynamicServer.prototype.stop = function() {
         this.listener.end();
     }, 2000);
 };
-
-
-//function transformToRegex(r) {
-//
-//    var endsWithSlash = r.indexOf('/', r.length - 1) !== -1;
-//    var suffix = endsWithSlash ? '?.*$' : '/?.*$';
-//    return new RegExp( '^' + r.replace(/(:[a-zA-Z0-9]+|\*)/g, ".*") + suffix, "g");
-//}
-
 
 
 
@@ -86,9 +80,9 @@ function prepareResource(resource) {
 
 
 function extractParamsName(resource, params) {
-    console.log("received resource: " + resource)
+    //console.log("received resource: " + resource) // TODO REMOVE
     resource = prepareResource(resource);
-    console.log("after preparation, resource is: " + resource);
+    //console.log("after preparation, resource is: " + resource); // TODO REMOVE
     var splitted = resource.split('/');
     var paramNum = 1;
 
@@ -107,6 +101,7 @@ function extractParamsName(resource, params) {
 
 // TODO: read http://expressjs.com/api.html#app.use
 DynamicServer.prototype.use = function () {
+
     var rh = setUpResourceAndHandler(arguments[0], arguments[1], "any");
     resourceHandlers.push([rh[0], rh[1], rh[2], rh[3]]);
 };
@@ -217,12 +212,27 @@ function analyzeRequest(request, clientSocket) {
         return createErrorResponse(clientSocket, 400);
     }
 
+
+
     var foundMatch = false;
     var doNext = false;
-    for (var r in resourceHandlers) {  // dynamically search for  handlers
+    for (var i in resourceHandlers) {  // dynamically search for  handlers
 
-        var matches = httpRequest.path.match(r[0]);
-        if (matches !== null && (httpRequest.method === r[2]) || r[2] === 'any') {
+        var r = resourceHandlers[i]
+
+        //console.log("R2: " + r[2])
+        //console.log("REQUEST:" + httpRequest.method);
+
+        console.log("PATH" + httpRequest.path);
+        console.log("R0 " + r[0]);
+
+
+        var matches = httpRequest.path.match('^\\\\ex2'); // r[0]
+        console.log(matches);
+        if (matches !== null && (httpRequest.method === r[2] || r[2] === 'any' ) ) {
+
+            console.log("HEREHRUERHUEHRU");
+
 
             foundMatch = true;
             // This must be in here, since only here we know the matching resource

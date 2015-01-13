@@ -22,6 +22,8 @@ var reasonPharseContent = {
 
 exports.parse = function (dataAsString) {
 
+    //console.log(dataAsString)
+
     var lines = dataAsString.split(/[\n\r]/);
 
     var i=0;
@@ -31,19 +33,20 @@ exports.parse = function (dataAsString) {
 
     var method, path, host, query = {}, version, protocol, header = {}, body, leftData;
 
+    console.log("MATHC!!!!!!!!! " + requestLineMatch);
+
     // parse the request line
     if (requestLineMatch != null) {
         method = requestLineMatch[1].toLowerCase();
 
         requestLineMatch[2] = pathModule.normalize(requestLineMatch[2].toLowerCase().trim());
 
-        var uriRegex = '^[^\\\\\\.]*[\\\\]?[^\\\\]*([\\\\][^\\?#]*)(\\?|#)?(.*)';
+        var uriRegex = '^[^\\\\\\.]*([\\\\][\\\\])?[^\\\\]*([\\\\][^\\?#]*)(\\?|#)?(.*)';
         var matches = requestLineMatch[2].match(uriRegex);
 
-        path = matches[1];
-
-        if (matches[2] === '?') {
-            query = fillQueryParams(matches[3])
+        path = matches[2];
+        if (matches[3] === '?') {
+            query = fillQueryParams(matches[4])
         }
 
 
@@ -114,6 +117,8 @@ exports.parse = function (dataAsString) {
     // TODO: right now we don't support request line: "POST /name=tobi HTTP/1.1\n"... that let return "tobi" for req.param('name')
 
     // TODO: complete implemnatation !!
+
+
     return new httpRequestModule(method, version, header, body, leftData, query, null /* cookies*/, path, host, protocol);
 };
 

@@ -12,6 +12,8 @@ var serverStaticRootFolder = "";
 var serversNextId = 0; //TODO - needed
 var servers = {};   // TODO - needed?
 
+var server; // this dynamic server instance
+
 
 
 // TODO - where should we put this method
@@ -36,8 +38,15 @@ function writeLog(moduleName, funcName, content, isErr) {
 
 
 exports.static = function (rootFolder) {
+
+    rootFolder = path.normalize(rootFolder);
+
+    if (rootFolder.indexOf('\\') === 0) {
+        var fullRoot = "." + rootFolder;
+    }
+
     try {
-        serverStaticRootFolder = path.resolve(rootFolder);
+        serverStaticRootFolder = path.resolve(fullRoot);
 
         // verify that the received root folder  exists
         if (!fs.existsSync(serverStaticRootFolder)) {
@@ -52,11 +61,12 @@ exports.static = function (rootFolder) {
         //callBack("invalid server root folder");
     }
 
-    server.use(serverStaticRootFolder, staticResourceHandler);
+    server.use(rootFolder, staticResourceHandler);
 };
 
 
 var staticResourceHandler = function (request, response, next) {
+
 
     // checks for unauthorized access: if the file path starts with the given server root folder.
     if (request.path.indexOf(serverStaticRootFolder) != 0) {
@@ -67,7 +77,9 @@ var staticResourceHandler = function (request, response, next) {
         return;
     }
 
+
     fs.stat(request.path, function (err, stats) {
+
         if (err || !stats.isFile()) {
             response.status(404).send(errBody[404]);
             writeLog("hujiwebserver", "staticResourceHandler", request.path + " is not a file or doesn't exist", true);
@@ -76,8 +88,10 @@ var staticResourceHandler = function (request, response, next) {
             return;
         }
 
+
+
         // opens the file as a readable stream
-        var fileAsAStream = fs.createReadStream(request.path);
+        var fileAsAStream = fs.createReadStream(serverStaticRootFolder + request.path);
 
         // waits until we know the readable stream is actually valid before piping
         fileAsAStream.on("open", function() {
@@ -118,20 +132,20 @@ var staticResourceHandler = function (request, response, next) {
 
 
 
-exports.myUse = function () {
+exports.myUse = function (resource) {
 
     this.toString = function() {
         return "EX"; // TODO THIS IS NOT GOOD
     };
 
-    server.post('/uploads/secured', myUseResourceHandler);
+    server.put(resource, myUseResourceHandler);
 };
 
 
-var myUseResourceHandler = function (request, response) {
+var myUseResourceHandler = function (request, response, next) {
 
     // opens the file as a writable stream
-    var writeToFile = fs.createWriteStream(request.path); //TODO we jave a problem since we don't no the 'path'
+    var writeToFile = fs.createWriteStream('/uploads/secured'); //TODO we jave a problem since we don't no the 'path'
 
     // waits until we know the writable stream is actually valid before piping
     writeToFile.on("open", function() {
@@ -144,16 +158,18 @@ var myUseResourceHandler = function (request, response) {
             response.closeConnection(true);
             response.status(200).send("File uploaded successfully.");
 
+            next();
+
         });
     });
-
 
     // catches any errors that happen while creating the readable stream (usually invalid names)
     writeToFile.on("error", function(err) {
         response.status(500).send("Unable to upload the file.");
         writeLog("hujiwebserver", "myUseResourceHandler", "An error had occurred: " + err, true);
-    });
 
+        next();
+    });
 }
 
 
@@ -165,17 +181,17 @@ var myUseResourceHandler = function (request, response) {
 
 
 
-exports.start = function (port, callBack) {
+exports.start = function (port, callBack) { // callBack which defines usage of server
 
-    if (port < 1 || port > 65535) {
+    try {
 
-        callBack("Invalid port number given");
+        server = new hujiDynamicServer(port);
+        setTimeout( callBack(undefined, server), 500);     // This will allow the server to set up properly
     }
-
-    server = new hujiDynamicServer(port);
-
-    callBack("", server)
-
+    catch(e) {
+        console.log("IOSI");
+        setTimeout( callBack(e.message), 500);
+    }
 };
 
 

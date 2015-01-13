@@ -72,18 +72,20 @@ var webServer = require('./hujiwebserver.js');
 
 
 
-function createHttpRequest(fileName, fileSize) {
+function createHttpRequest(fileContent) {
 
     var options = {
         hostname: 'localhost',
         port: 8888,
-        method: 'POST',
+        method: 'PUT',
         headers: {
-            connection : "keep-alive",
+            'connection' : "keep-alive",
             'Content-Type' : 'text/plain',
-            'Content-Length' : fileSize
+            'Content-Length' : fileContent.length
         },
-        path: '/uploads/secured/generalDesign'
+        path: '/uploads'
+        //body: fileContent
+
     };
 
     var req = http.request(options, function (res) {
@@ -91,13 +93,12 @@ function createHttpRequest(fileName, fileSize) {
 
         if (res.statusCode !== 200)
         {
-            console.log(res.body.toString())
+            //console.log(res)
         }
 
         res.on('data', function (resData) {
 
-            console.log(resData);
-
+            console.log(resData.toString());
         });
     });
 
@@ -106,7 +107,8 @@ function createHttpRequest(fileName, fileSize) {
         console.log("Failed test 1")
     });
 
-    return req;
+    req.write(fileContent);
+    req.end();
 }
 
 
@@ -120,42 +122,71 @@ function test1(path) {
             return;
         }
 
+        fs.readFile(path, 'utf8', function (err, data) {
 
-        var httpRequest = createHttpRequest(stats.size);
+            if (err) {
+                console.log("ERROR READING FILE ");
+                return;
+            }
 
-        var fileAsAStream = fs.createReadStream(path);
-        fileAsAStream.on("open", function() {
-
-            fileAsAStream.pipe(httpRequest, { end: false });
-            fileAsAStream.on('end', function() {
-                httpRequest.end();
-            });
-
+            httpRequest = createHttpRequest(data);
 
         });
-
-        // catches any errors that happen while creating the readable stream (usually invalid names)
-        fileAsAStream.on("error", function(err) {
-            console.log("ERROR fileAsAStream on Error");
-        })
-    })
+    });
 }
 
 
 
 
+function setUpServerAndUseCases() {
+
+    var a = webServer.start(8888,  function(err, server) {
+
+        if (err) {
+            console.log("Error: " + err);
+            server.close();
+            return
+        }
+
+        console.log("Server Connected Successfully!");
+        console.log("------------------------------");
+    });
+
+    a.use();
+
+    webServer.myUse('/uploads');
+}
 
 
 
 
+function runTests() {
+
+    setUpServerAndUseCases();
+
+    //test1('./generalDesign')
+
+
+}
+
+var path = require('path')
 
 
 
-webServer.start(8888, function() { console.log("BLA");});
+var a = path.normalize("/ex2/index.html");
 
-webServer.myUse();
+var b = path.normalize('^\\\\ex2');
+console.log("B: " + b);
+
+var b = new RegExp("^\\ex2");
+
+console.log(a);
+console.log(b);
+
+var c = a.match(b);
+
+console.log(c);
 
 
 
 
-test1('./generalDesign')
