@@ -5,7 +5,7 @@
 var webServer = require('./hujiwebserver.js');
 var net = require('net');
 var portNum = 8888;
-var numOfClients = 1; // This number is architecture dependent. On our computer, 400 was possible.
+var numOfClients = 400; // This number is architecture dependent. On our computer, 400 was possible.
 
 //var httpRequest = "GET C:/Users/Alon/WebstormProjects/InternetTech/ex2/index.html http/1.1\nConnection: keep-alive\r\n\r\n";
 var httpRequest = "GET /ex2/index.html HTTP/1.1\nConnection: keep-alive\r\n\r\n";
@@ -21,13 +21,8 @@ function loadServer_1() {
     for (var i = 0; i < numOfClients; ++i) {
 
         ( function(c) {
-            clients[c] = net.connect({port: portNum}, function () {
-
-                console.log("Client " + c + " connected");
-            });
-
+            clients[c] = net.connect({port: portNum})
             clients[c].on('error', function () {
-
                 console.log("Error occurred on client " + c + ".");
             });
         }(i));
@@ -39,21 +34,20 @@ function loadServer_1() {
 
             clients[c].write(httpRequest);
             clients[c].on('data', function (data) {
-                console.log(data.toString());
                 ++successes;
-            });
-
-            clients[c].on('end', function () {
-                console.log("client " + c + " disconnected");
             });
         }(i));
     }
 
-    console.log("*************RESULTS************");
-    console.log("Requests handled successfully: " + successes + " out of " + numOfClients + ".");
+    setTimeout(function() {
 
-    console.log("Load Test 1 Ended - check results");
-    console.log("---------------------------------");
+        console.log("*************RESULTS************");
+        console.log("Requests handled successfully: " + successes + " out of " + numOfClients + ".");
+
+        console.log("Load Test 1 Ended - check results");
+        console.log("---------------------------------");
+
+    }, 2500);
 }
 
 
@@ -71,8 +65,6 @@ function loadServer_2() {
         (function(c) {
 
             clients[c] = net.connect({port: portNum}, function () {
-
-                console.log("Client " + c + " connected");
                 clients[c].write(httpRequest);
             });
 
@@ -84,17 +76,19 @@ function loadServer_2() {
                 console.log("Error occurred on client " + c + ".");
             });
 
-            clients[c].on('end', function () {
-                console.log("client " + c + " disconnected");
-            });
         }(i));
     }
 
-    console.log("*************RESULTS************");
-    console.log("Requests handled successfully: " + successes + " out of " + numOfClients + ".");
 
-    console.log("Load Test 2 Ended - check results");
-    console.log("---------------------------------");
+    setTimeout(function() {
+
+        console.log("*************RESULTS************");
+        console.log("Requests handled successfully: " + successes + " out of " + numOfClients + ".");
+
+        console.log("Load Test 2 Ended - check results");
+        console.log("---------------------------------");
+
+    }, 2500);
 }
 
 
@@ -109,9 +103,9 @@ function runLoadTest() {
         webServer.static("/ex2"); // we check load test against static requests
         loadServer_1();
 
-       // setTimeout(function() { // We wait a bit before trying the second load test.
-            //loadServer_2();
-       // }, 5000);
+        setTimeout(function() { // We wait a bit before trying the second load test.
+            loadServer_2();
+        }, 5000);
     });
 }
 

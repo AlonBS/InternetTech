@@ -78,9 +78,9 @@ function createHttpRequest(fileContent) {
         hostname: 'localhost',
         port: 8888,
         method: 'PUT',
+        Accept: 'text/plain',
         headers: {
             'connection' : "keep-alive",
-            'Content-Type' : 'text/plain',
             'Content-Length' : fileContent.length
         },
         path: '/uploads'
@@ -89,7 +89,6 @@ function createHttpRequest(fileContent) {
     };
 
     var req = http.request(options, function (res) {
-        res.setEncoding = 'utf8';
 
         if (res.statusCode !== 200)
         {

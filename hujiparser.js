@@ -24,7 +24,8 @@ exports.parse = function (dataAsString) {
 
     console.log(dataAsString)
 
-    var lines = dataAsString.split(/[\n\r]/);
+    var lines = dataAsString.split(/[\n\r][\n\r]?/);
+    console.log(lines);
 
     var i=0;
 
