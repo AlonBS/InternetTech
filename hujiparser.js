@@ -22,7 +22,7 @@ var reasonPharseContent = {
 
 exports.parse = function (dataAsString) {
 
-    //console.log(dataAsString)
+    console.log(dataAsString)
 
     var lines = dataAsString.split(/[\n\r]/);
 
@@ -118,7 +118,7 @@ exports.parse = function (dataAsString) {
 
     // TODO: complete implemnatation !!
 
-
+    console.log("BODY: " + body);
     return new httpRequestModule(method, version, header, body, leftData, query, null /* cookies*/, path, host, protocol);
 };
 

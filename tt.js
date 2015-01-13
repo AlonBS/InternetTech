@@ -107,6 +107,7 @@ function createHttpRequest(fileContent) {
         console.log("Failed test 1")
     });
 
+
     req.write(fileContent);
     req.end();
 }
@@ -140,7 +141,7 @@ function test1(path) {
 
 function setUpServerAndUseCases() {
 
-    var a = webServer.start(8888,  function(err, server) {
+    webServer.start(8888,  function(err, server) {
 
         if (err) {
             console.log("Error: " + err);
@@ -150,11 +151,14 @@ function setUpServerAndUseCases() {
 
         console.log("Server Connected Successfully!");
         console.log("------------------------------");
+
+        webServer.myUse('/uploads');
+
+        test1('./generalDesign')
     });
 
-    a.use();
 
-    webServer.myUse('/uploads');
+
 }
 
 
@@ -163,9 +167,6 @@ function setUpServerAndUseCases() {
 function runTests() {
 
     setUpServerAndUseCases();
-
-    test1('./generalDesign')
-
 
 }
 
