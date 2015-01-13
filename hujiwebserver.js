@@ -108,18 +108,16 @@ var staticResourceHandler = function (request, response, next) {
             return;
         }
 
-        console.log("aaa 2: " + fullPath);
-
         fs.readFile(fullPath, 'utf8', function (err, data) {
 
             if (err) {
-                se
+                response.status(404).send();
             }
 
             // TODO - to tal: I think you have a mistake here. shouldn't it be:
             // TODO - why do you set response.closeConnection to false?
             var closeConnection = response.shouldCloseConnection;
-            response.closeConnection(false);
+            //response.closeConnection(false);
 
             // send header part
             response.set("content-type", server.identifyType(request.path));
