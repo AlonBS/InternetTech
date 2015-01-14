@@ -155,6 +155,8 @@ HttpResponse.prototype.send = function(body) {
     var msg = this.parser.stringify(this);
     this.clientSocket.write(msg);
 
+    console.log("AAAAA");
+
     if (this.shouldCloseConnection) {
         this.clientSocket.end();
     }

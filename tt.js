@@ -74,17 +74,23 @@ var webServer = require('./hujiwebserver.js');
 
 function createHttpRequest(options, body, testNum) {
     var req = http.request(options, function (res) {
-        res.setEncoding = 'ascii';
 
+        res.setEncoding = 'ascii';
         if (res.statusCode !== 200)
         {
             //console.log(res)
         }
 
-        res.on('data', function (resData) {
+        console.log("AA");
 
-            console.log(resData.toString());
-        });
+        //res.on('data', function (resData) {
+        //
+        //    console.log(resData.toString());
+        //});
+
+        res.on('end', function() {
+            console.log("ENDED");
+        })
     });
 
     req.on('error', function(e) {
@@ -152,10 +158,7 @@ function test2() {
     };
 
     createHttpRequest(options, "", 2);
-
 }
-
-
 
 
 function setUpServerAndUseCases() {
@@ -174,13 +177,23 @@ function setUpServerAndUseCases() {
         webServer.myUse('/uploads');
 
         server.use('/ex2/innerDir', function(request, response, next){
+
+            console.log("Here 1");
+
             response.status(200).send("handled by the first 'use'. next is called so verify that also the second" +
             " handler has been invoked");
             next();
         });
 
         server.use('/ex2', function(request, response, next){
-            response.status(200).send("handled by the second 'use'");
+
+            console.log("Here 2");
+            //response.status(200).send("handled by the second 'use'");
+
+            setTimeout(function() {
+
+                response.status(200).send("handled by the second 'use'");
+            }, 300);
         });
 
         server.get('/onlyGet', function(request, response, next){
@@ -192,9 +205,6 @@ function setUpServerAndUseCases() {
         test2();
 
     });
-
-
-
 }
 
 
