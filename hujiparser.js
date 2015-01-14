@@ -162,6 +162,7 @@ exports.stringify = function(httpResponse) {
         httpResponseAsString += headerKey + ": " + httpResponse.header[headerKey] + "\r\n";
     }
 
+    //httpResponseAsString += "Connection: Keep-Alive\r\n";
     httpResponseAsString += "\r\n";
     if (httpResponse.body !== null)
         httpResponseAsString += httpResponse.body;

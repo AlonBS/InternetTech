@@ -48,7 +48,6 @@ function writeLog(moduleName, funcName, content, isErr) {
 
 
 exports.static = function (rootFolder) {
-
     rootFolder = path.normalize(rootFolder);
 
     shortServerStaticRootFolder = rootFolder;
@@ -73,7 +72,8 @@ exports.static = function (rootFolder) {
         //callBack("invalid server root folder");
     }
 
-    server.use(rootFolder, staticResourceHandler);
+    return staticResourceHandler;
+    //server.use(rootFolder, staticResourceHandler);
 };
 
 
@@ -101,7 +101,7 @@ var staticResourceHandler = function (request, response, next) {
             return;
         }
 
-        fs.readFile(fullPath, 'ascii', function (err, data) {
+        fs.readFile(fullPath, 'utf8', function (err, data) {
 
             if (err) {
                 response.status(404).send();
@@ -113,9 +113,12 @@ var staticResourceHandler = function (request, response, next) {
             //response.closeConnection(false);
 
             // send header part
+
             response.set("content-type", server.identifyType(request.path));
             response.set("content-length", stats.size);
             response.send(data);
+
+            //console.log("closeConnection: " + closeConnection + ", content of file: " + request.path + ", is: " + data);
 
             if (closeConnection)
                 request.clientSocket.end();

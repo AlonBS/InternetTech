@@ -153,13 +153,18 @@ HttpResponse.prototype.send = function(body) {
     }
 
     var msg = this.parser.stringify(this);
-    this.clientSocket.write(msg);
+    //this.clientSocket.write(msg);
+    this.clientSocket.write(msg, function() {
+        if (this.shouldCloseConnection) {
+            this.clientSocket.end();
+        }
+    });
 
-    console.log("AAAAA");
+    //console.log("AAAAA: " + this.shouldCloseConnection);
 
-    if (this.shouldCloseConnection) {
-        this.clientSocket.end();
-    }
+    //if (this.shouldCloseConnection) {
+    //    this.clientSocket.end();
+    //}
 
     return this;
 };

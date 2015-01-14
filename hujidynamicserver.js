@@ -198,8 +198,14 @@ function createErrorResponse(clientSocket, code) {
 
 
 function analyzeRequest(request, clientSocket) {
-
+    //console.log("### 1111: " + request);
     var httpRequest = parser.parse(request);
+    //console.log("---------- xxxxxxxxxxx ----------------");
+    //console.log("###request file: " + clientSocket.buffer);
+    //console.log("---------- yyyyyyyyyyy ----------------");
+
+    // since the request isn't missing, update socket.buffer to holds the data received after reading the received data
+    clientSocket.buffer = httpRequest.leftData;
 
     //if the request is missing or in bad format, return (the error response was already sent)
     if (httpRequest === null || httpRequest === undefined) {
@@ -295,6 +301,7 @@ function createResponse(httpRequest, clientSocket, closeConnection) {
     response.closeConnection(closeConnection);
 
     var type = identifyType(httpRequest.path);
+    //console.log("type: " + type);
 
     // send header part
     response.set("content-type", type);
