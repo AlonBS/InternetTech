@@ -9,19 +9,9 @@ var path = require ('path');
 
 var serverStaticRootFolder = "";
 var shortServerStaticRootFolder = "";
-   // TODO - currently - only one server is supported. (this will be enclosed as a private member of hujiwebServer)
-var serversNextId = 0; //TODO - needed
-var servers = {};   // TODO - needed?
 
 var server; // this dynamic server instance
 
-
-
-// TODO - where should we put this method
-String.prototype.regexIndexOf = function(regex, startpos) {
-    var indexOf = this.substring(startpos || 0).search(regex);
-    return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
-};
 
 function getFullPath(shortPath) {
 
@@ -31,10 +21,6 @@ function getFullPath(shortPath) {
 
     return path.resolve(shortPath);
 }
-
-
-
-//
 
 
 function writeLog(moduleName, funcName, content, isErr) {
@@ -52,10 +38,6 @@ exports.static = function (rootFolder) {
 
     shortServerStaticRootFolder = rootFolder;
 
-    //if (rootFolder.indexOf('\\') === 0) {
-    //    var fullRoot = "." + rootFolder;
-    //}
-
     try {
         serverStaticRootFolder = getFullPath(rootFolder);
 
@@ -64,16 +46,10 @@ exports.static = function (rootFolder) {
             writeLog("hujiwebserver", "static", "invalid root folder", true);
 
             return;
-
-            // TODO: which error we need to send to user?
-            //callBack("invalid server root folder");
         }
-    } catch (e) {
-        //callBack("invalid server root folder");
-    }
+    } catch (e) {}
 
     return staticResourceHandler;
-    //server.use(rootFolder, staticResourceHandler);
 };
 
 
@@ -85,7 +61,6 @@ var staticResourceHandler = function (request, response, next) {
     if (fullPath.indexOf(serverStaticRootFolder) != 0) {
         response.status(401).send();
 
-        //sendErrorResponse(401, socket, closeConnection);
         writeLog("hujiwebserver", "staticResourceHandler", "unauthorized access to: " + request.path, true);
         return;
     }
@@ -97,7 +72,6 @@ var staticResourceHandler = function (request, response, next) {
             response.status(404).send();
             writeLog("hujiwebserver", "staticResourceHandler", fullPath + " is not a file or doesn't exist", true);
 
-            //sendErrorResponse(404, socket, closeConnection);
             return;
         }
 
@@ -107,62 +81,17 @@ var staticResourceHandler = function (request, response, next) {
                 response.status(404).send();
             }
 
-            // TODO - to tal: I think you have a mistake here. shouldn't it be:
-            // TODO - why do you set response.closeConnection to false?
             var closeConnection = response.shouldCloseConnection;
-            //response.closeConnection(false);
 
             // send header part
-
             response.set("content-type", server.identifyType(request.path));
             response.set("content-length", stats.size);
             response.send(data);
-
-            //console.log("closeConnection: " + closeConnection + ", content of file: " + request.path + ", is: " + data);
 
             if (closeConnection)
                 request.clientSocket.end();
 
         });
-
-        // opens the file as a readable stream
-        //var fileAsAStream = fs.createReadStream(fullPath);
-        //
-        //console.log("aaa 3");
-        //
-        //// waits until we know the readable stream is actually valid before piping
-        //fileAsAStream.on("open", function() {
-        //
-        //
-        //    // TODO - to tal: I think you have a mistake here. shouldn't it be:
-        //    // TODO - why do you set response.closeConnection to false?
-        //    var closeConnection = response.shouldCloseConnection;
-        //    response.closeConnection(false);
-        //
-        //    // send header part
-        //    response.set("content-type", server.identifyType(request.path));
-        //    response.set("content-length", stats.size);
-        //    response.send();
-        //
-        //    //var response = httpObjects.createHttpResponse(version, "200", reasonPharseContent[200],
-        //    //    {"Content-Type" : identifyType(request.path), "Content-Length" : stats.size},"");
-        //    //
-        //    //socket.write(parser.stringify(response));
-        //
-        //    // send 'body' content
-        //    fileAsAStream.pipe(request.clientSocket, {end: false});
-        //
-        //    if (closeConnection)
-        //        request.clientSocket.end();
-        //});
-
-        // catches any errors that happen while creating the readable stream (usually invalid names)
-        //fileAsAStream.on("error", function(err) {
-        //    response.status(404).send();
-        //    writeLog("hujiwebserver", "staticResourceHandler", "An error had occurred: " + err, true);
-        //
-        //    //sendErrorResponse(404, socket, closeConnection);
-        //})
     })
 };
 
@@ -192,7 +121,7 @@ var myUseResourceHandler = function (request, response, next) {
     // opens the file as a writable stream
     var fullPath = getFullPath(request.path);
 
-    var writeToFile = fs.createWriteStream(fullPath); //TODO we jave a problem since we don't no the 'path'
+    var writeToFile = fs.createWriteStream(fullPath);
 
     // waits until we know the writable stream is actually valid before piping
     writeToFile.on("open", function() {
@@ -220,20 +149,12 @@ var myUseResourceHandler = function (request, response, next) {
 };
 
 
-
-
-
-
-
-
-
-
-exports.start = function (port, callBack) { // callBack which defines usage of server
+exports.start = function (port, callBack) {
 
     try {
 
         server = new hujiDynamicServer(port);
-        setTimeout( callBack(undefined, server), 500);     // This will allow the server to set up properly
+        setTimeout( callBack(undefined, server), 500);
     }
     catch(e) {
         setTimeout( callBack(e.message), 500);

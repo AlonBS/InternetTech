@@ -1,448 +1,341 @@
-//
-//var webServer = require('./hujiwebserver.js');
-//var net = require('net');
-//var http = require('http');
-//var fs = require('fs');
-//var pathModule = require ('path');
-//var parser = require ('./hujiparser.js');
-//var requestModule = require ('./HttpRequest.js');
-//var responseModule = require ('./HttpResponse.js');
-//
-//var rootFolder = "";
-//
-//
-//function serverOnCallBack(err) {
-//
-//    if (err) {
-//        console.log("An error has occurred: " + err);
-//    }
-//    else {
-//
-//        console.log("Server connected successfully");
-//    }
-//}
-//
-//
-//function serverOffCallBack(err) {
-//
-//    if (err) {
-//        console.log("An error has occurred: " + err);
-//    }
-//    else {
-//
-//        console.log("Server disconnected successfully");
-//    }
-//}
-//
-//function test_1() {
-//
-//    setTimeout(function(){
-//
-//        var options = {
-//            hostname: 'localhost',
-//            port: 8888,
-//            method: 'GET',
-//            headers: {
-//                connection : "keep-alive"
-//            },
-//            path: '/ex2/index.html'
-//        };
-//
-//        var req = http.request(options, function (res) {
-//            res.setEncoding = 'utf8';
-//
-//            if (res.statusCode !== 200 ||
-//                res.headers['content-type'] !== "text/html" ||
-//                res.headers['content-length'] !== '209')
-//            {
-//                console.log("index.html length is: " + res.headers['content-length']);
-//                console.log("failed getting '/ex2/index.html' file.");
-//            }
-//            else
-//            {
-//                console.log("Passed test 1")
-//            }
-//
-//            res.on('data', function (resData) {
-//
-//                // console.log(resData) We don't need to print the actual data
-//
-//            });
-//        });
-//
-//        req.on('error', function(e) {
-//            console.log("ERROR: test 1 - " + e);
-//            console.log("Failed test 1")
-//        });
-//
-//        req.end();
-//
-//    }, 100)
-//}
-//
-///**
-// * Tests for non-existing file
-// */
-//function test_2() {
-//
-//    setTimeout(function(){
-//
-//        var options = {
-//            hostname: 'localhost',
-//            port: 8888,
-//            method: 'GET',
-//            path: '/ex2/no_such_file.html'
-//        };
-//
-//        var req = http.request(options, function (res) {
-//            res.setEncoding = 'utf8';
-//
-//            if (res.statusCode !== 404) {
-//                console.log("Failed Test 2");
-//            }
-//            else
-//            {
-//                console.log("Passed Test 2")
-//            }
-//
-//            res.on('data', function (resData) {
-//
-//                // console.log(resData) We don't need to print the actual data
-//
-//            });
-//        });
-//
-//        req.on('error', function(e) {
-//            console.log("ERROR: test 1 - " + e);
-//            console.log("Failed test 1")
-//        });
-//
-//        req.end();
-//
-//    }, 200)
-//}
-//
-///**
-// * Other method names check (including capitalization check)
-// */
-//function test_3() {
-//
-//    test_1c_helper('POST', 100)
-//    test_1c_helper('delete', 200)
-//    test_1c_helper('HEAD', 300)
-//    test_1c_helper('PuT', 400)
-//}
-//
-//http://www.example.com/alon/index.html
-//function test_1c_helper(method, time) {
-//
-//    setTimeout(function(){
-//
-//        var options = {
-//            hostname: 'localhost',
-//            port: 8888,
-//            method: method,
-//            headers: {
-//                connection : "keep-alive"
-//            },
-//            path: '/ex2/main.js'
-//        };
-//
-//
-//        var req = http.request(options, function (res) {
-//            res.setEncoding = 'utf8';
-//
-//            if (res.statusCode !== 200 ||
-//                res.headers['content-type'] !== "application/javascript" ||
-//                res.headers['content-length'] !== '9431')
-//            {
-//                console.log("Failed test 3");
-//            }
-//            else
-//            {
-//                console.log("Passed test 3 for " + method)
-//            }
-//
-//            res.on('data', function (resData) {
-//
-//                // console.log(resData) We don't need to print the actual data
-//
-//            });
-//        });
-//
-//        req.on('error', function(e) {
-//            console.log("ERROR: test 1 - " + e);
-//            console.log("Failed test 1")
-//        });
-//
-//        req.end();
-//
-//    }, 200 + time)
-//}
-//
-//
-///**
-// * Send different requests from 200 different clients
-// */
-//function test_4() {
-//
-//    setTimeout(function(){
-//
-//        clients = []
-//        for (var i = 0 ;  i < 200 ; ++i ) {
-//            clients[i] = net.connect({port: 8888});
-//        }
-//
-//        var count = 0;
-//        for (var i = 0 ; i < 200 ; ++i) {
-//
-//            clients[i].on('data', function(data) {
-//
-//                this.end();
-//                if (++count > 399) {
-//                    console.log("Passed Test 4")
-//                }
-//            });
-//
-//            clients[i].on('error', function(err) {
-//                console.log(err)
-//            });
-//        }
-//
-//        for (var i = 0 ; i < 200 ; ++i) {
-//            clients[i].write("GET ex2/style.css HTTP/1.1\n\n");
-//        }
-//    }, 1200);
-//}
-//
-//
-//
-//function run_tests() {
-//    try {
-//        rootFolder = pathModule.resolve(rootFolder);
-//
-//        // verify that the received root folder is exists
-//        if (!fs.existsSync(rootFolder)) {
-//            rootFolder = "";
-//        }
-//    } catch (e) {
-//        rootFolder = "";
-//    }
-//
-//    var serverId = webServer.start(8888, rootFolder, serverOnCallBack);
-//
-//    setTimeout(function(){
-//
-//        test_1();
-//        test_2();
-//        test_3();
-//        test_4();
-//
-//        setTimeout(function(){
-//
-//            webServer.stop(serverId, serverOffCallBack);
-//
-//        }, 10000)
-//
-//    }, 1000)
-//}
-//
-//
-////run_tests();
-//
-////var x = JSON.stringify([1,2,3]);
-////console.log(x);
-////
-//////var ;
-////switch (typeof (x)) {
-////    case 'string':
-////        console.log("hi1");
-////        break;
-////    case 'object':
-////        console.log("hi2");
-////        break;
-////}
-//
-////function fillQueryParams(queryParams) {
-////    var query = {};
-////    var splittedQueryParams = queryParams.split("&");
-////
-////    for (var i=0; i< splittedQueryParams.length; i++) {
-////        var equalIndex = splittedQueryParams[i].indexOf('=');
-////
-////        if (equalIndex != -1) {
-////            var key = splittedQueryParams[i].substr(0, equalIndex);
-////            var val = splittedQueryParams[i].substr(equalIndex + 1);
-////            addToQuery(key, val, query);
-////            //query[key] = val;
-////        }
-////    }
-////
-////    return query;
-////}
-////
-////function addToQuery(key, val, query) {
-////    var leftBracketIndex = key.indexOf('[');
-////
-////    if (leftBracketIndex !== -1) {
-////        var rightBracketIndex = key.lastIndexOf(']');
-////        var newKey = key.substr(0, leftBracketIndex);
-////        var leftStr = key.substr(leftBracketIndex+1, (rightBracketIndex - leftBracketIndex - 1));
-////
-////        query[newKey] = addToQuery(leftStr, val, query);
-////
-////        return query;
-////    }
-////
-////    query[key] = val;
-////
-////    return query;
-////}
-//
-////var t = "shoe=big";
-////var res = fillQueryParams(t);
-////console.log(res.shoe);
-//
-////console.log("start for");
-////for (var v in res.color) {
-////    console.log(res.color[v]);
-////}
-//
-//
-//var msg = "GET http://www.example.com/www/index.html?name=tobi HTTP/1.1\n" +
-//    "Content-Type: text/xml\n" +
-//    "Host: http://www.example.com:3000\n" +
-//    "Content-Length: 10\n\n" +
-//    "This is the body!!!";
-//
-//var request = parser.parse(msg);
-//
-//console.log("method: " + request.method + ", version: " + request.version + ", path: " + request.path + ", hostname: " + request.host + ", protocol: " + request.protocol);
-//
-//var queries = "";
-//for (var val in request.query)
-//    queries += val + ": " + request.query[val] + "; ";
-//
-//console.log("query: " + queries);
-//
-//var prms = "";
-//for (var val in request.params)
-//    prms += val + ": " + request.params[val] + "; ";
-//
-//console.log("params: " + prms);
-//
-//var header = "";
-//for (var val in request.header)
-//    header += val + ": " + request.header[val] + "; ";
-//
-//console.log("header: " + header);
-//console.log("-----------------------");
-//
-////webServer.start(8888, function() {
-////    console.log("hi");
-////    //webServer.static("c:/users/:name/tal");
-////});
-//
-//
-//function prepareResource(resource) {
-//    if (resource === undefined || resource === null) {
-//        return "/";
-//    }
-//    if (resource.indexOf('/') !== 0) {
-//        resource = "/" + resource;
-//    }
-//
-//    if (resource.lastIndexOf('/') === resource.length-1) {
-//        resource = resource.substr(0, resource.length-1);
-//    }
-//
-//    resource = pathModule.normalize(resource);
-//
-//    return resource;
-//}
-//
-//function extractParamsName(resource, params) {
-//    console.log("received resource: " + resource)
-//    resource = prepareResource(resource);
-//    console.log("after preparation, resource is: " + resource);
-//    var splitted = resource.split('/');
-//    var paramNum = 1;
-//
-//    for (var i=0; i<splitted.length; i++) {
-//        if (splitted[i] !== undefined && splitted[i] !== null && splitted[i].indexOf(':') === 0) {
-//            var param = splitted[i].substr(1);
-//            params[param] = paramNum++;
-//
-//            splitted[i] = "([^\/]*)"
-//        }
-//    }
-//
-//    resource = '^' + splitted.join('\\');
-//    return resource;
-//}
-//
-//
-//var res = new responseModule(null).status(500).set('content-type', 'txt/html').set('content-length', 16);
-//res.body = "this is the body";
-//
-//var resAsStr = parser.stringify(res);
-//
-//console.log("resAsStr:\n" + resAsStr);
-//console.log("-----------------------");
-//var resource = '/a(bc)?d';
-//var matches = "/sd/ad/es".match(resource);
-//
-//console.log(matches);
-//
-//console.log("-----------------------");
-//var res1 = "x/:name/:last/z/:city";
-//var path = "/x/tal/orenstein/z/rehovot/";
-//
-//var params = {};
-//var newResorece = extractParamsName(res1, params);
-//
-//console.log("new resource is: " + newResorece);
-//
-//matches = path.match(newResorece);
-//var correctParams = {};
-//for (var name in params) {
-//    var i = params[name];
-//    correctParams[name] = matches[i];
-//}
-//
-//for (var name in correctParams) {
-//    console.log("param: " + name + ", value: " + correctParams[name]);
-//}
-//
-//console.log("-----------------------");
-//var str2 = "http://///www.example.com/articles/index.html?name=tal&a[b[c]]=d  ";
-//str2 = pathModule.normalize(str2);
-//console.log(str2);
-//var uriRegex = '^[^\\\\\\.]*[\\\\]?[^\\\\]*([\\\\][^\\?#]*)(\\?|#)?(.*)';
-//var matches2 = str2.toLowerCase().trim().match(uriRegex);
-//
-//if (matches2 !== null)
-//    console.log("path: " + matches2[1] + ", sign: " + matches2[2] + ", query: " + matches2[3]);
-//else
-//    console.log("null");
-//
-//
-////console.log("order=" + request.query.order + "; shoe[color]=" + request.query.shoe.color + "; shoe[type]=" + request.query.shoe.type);
-//
-//var reg = "^\ex2";
-//var res = "\ex2\index.html";
-//
-//var mat = res.match(reg);
-//console.log(mat);
-//
-//console.log("done");
-//
-////var x = {"name" : "tal"};
-////console.log(x.sd);
+/**
+ * Created by Alon & Tal on 13/1/2014.
+ */
+
+var http = require('http');
+var fs = require('fs');
+var webServer = require('./hujiwebserver.js');
 
 
-var requestModule = require ('./HttpRequest.js');
+function createHttpRequest(options, body, testNum, expectedStatusCode) {
+    var req = http.request(options, function (res) {
 
-var req = new requestModule("a", "b", "C ", "D", "E", "F", "G");
+        res.setEncoding = 'utf8';
+        if (res.statusCode === expectedStatusCode)
+        {
+            console.log("test " + testNum + ": pass");
+        }
+        else {
+            console.log("test " + testNum + ": failed. got " + res.statusCode + " instead of " + expectedStatusCode);
+        }
 
-console.log(req.method)
+        res.on('end', function() {
+            console.log("ENDED");
+        })
+    });
+
+    req.on('error', function(e) {
+        console.log("ERROR: test " + testNum + " - " + e);
+        console.log("Failed test " + testNum);
+    });
+
+
+    req.write(body);
+    req.end();
+}
+
+
+function test1(path) {
+    fs.stat(path, function (err, stats) {
+
+        if (err || !stats.isFile()) {
+
+            console.log("ERROR 1");
+            return;
+        }
+
+        fs.readFile(path, 'ascii', function (err, data) {
+
+            if (err) {
+                console.log("ERROR READING FILE ");
+                return;
+            }
+
+            var options = {
+                hostname: 'localhost',
+                port: 8888,
+                method: 'PUT',
+                headers: {
+                    'connection' : "keep-alive",
+                    'Content-Type' : 'text/plain',
+                    'Content-Length' : data.length
+                },
+                path: '/uploads/uploadMe.txt'
+            };
+
+            createHttpRequest(options, data, 1, 200);
+        });
+    });
+}
+
+
+function test2() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'GET',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0,
+            'Cookie': 'name=value; name2=value2'
+        },
+        path: '/ex2/green/innerFile.txt'
+
+    };
+
+    createHttpRequest(options, "", 2, 200);
+}
+
+
+function test3() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'GET',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0
+        },
+        path: '/only/post/someFile.txt'
+
+    };
+
+    createHttpRequest(options, "", 3, 404);
+}
+
+
+function test4() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'GET',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0
+        },
+        path: '/only/get/someFile.txt'
+
+    };
+
+    createHttpRequest(options, "", 4, 200);
+}
+
+
+function test5() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'POST',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0
+        },
+        path: '/only/post/someFile.txt'
+
+    };
+
+    createHttpRequest(options, "", 5, 200);
+}
+
+
+function test6() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'PUT',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0
+        },
+        path: '/only/put/someFile.txt'
+
+    };
+
+    createHttpRequest(options, "", 6, 200);
+}
+
+
+function test7() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'DELETE',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0
+        },
+        path: '/only/delete/someFile.txt'
+
+    };
+
+    createHttpRequest(options, "", 7, 200);
+}
+
+
+function test8() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'DELETE',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0
+        },
+        path: '/only/delete/notExist.txt'
+
+    };
+
+    createHttpRequest(options, "", 8, 200);
+}
+
+
+function test9() {
+
+    var options = {
+        hostname: 'localhost',
+        port: 8888,
+        method: 'DELETE',
+        headers: {
+            'connection' : "keep-alive",
+            'Content-Type' : 'text/plain',
+            'Content-Length' : 0
+        },
+        path: '/../ex3/alonTest.js'
+
+    };
+
+    createHttpRequest(options, "", 9, 404);
+}
+
+
+
+
+
+function setUpServerAndUseCases() {
+
+    webServer.start(8888,  function(err, server) {
+
+        if (err) {
+            console.log("Error: " + err);
+            server.close();
+            return
+        }
+
+        console.log("Server Connected Successfully!");
+        console.log("------------------------------");
+
+        webServer.myUse('/uploads');
+
+        server.use('/ex2/:color', function(request, response, next){
+
+            if (request.params.color === 'green') {
+                console.log("pass testing extracting param values");
+            }
+            else {
+                console.log("failed testing extracting param values");
+            }
+
+            response.status(200).send("handled by the first 'use'. next is called so verify that also the second " +
+            "handler has been invoked");
+
+            next();
+        });
+
+        server.use('/ex2', function(request, response, next){
+
+            try {
+                var fullPath = getFullPath(request.path);
+
+                // verify that the received root folder  exists
+                if (!fs.existsSync(fullPath)) {
+                    if (response.statusCode === 404) {
+                        console.log("file not found");
+                    }
+                }
+            } catch (e) {}
+
+            response.status(200).send("handled by the second 'use'. next is called but there isn't another resource " +
+            "handler");
+
+            next();
+        });
+
+        server.get('/only/get', function(request, response, next){
+            response.status(200).send("handled by the first 'get'.");
+        });
+
+        // this method send only the handler !!
+        server.post(function(request, response, next){
+            response.status(200).send("handled by the first 'post'.");
+        });
+
+        server.put('/only/put', function(request, response, next){
+            response.status(200).send("handled by the first 'put'.");
+        });
+
+        server.delete('/only/delete', function(request, response, next){
+            response.status(200).send("handled by the first 'delete'.");
+        });
+
+        //test1('./uploadMe.txt');
+        // TODO - There is an error during 'next' call. the second handler are not invoked.
+        test2();
+        //test3();
+        //test4();
+        //test5();
+        //test6();
+        //test7();
+        //test8();
+       // test9();
+    });
+}
+
+
+// TODO: right now we don't support request line: "POST /name=tobi HTTP/1.1\n"... that let return "tobi" for req.param('name')
+// TODO - currently - only one server is supported. (this will be enclosed as a private member of hujiwebServer)
+// TODO: this is the correct format to use 'static' server
+
+
+function runTests() {
+
+    setUpServerAndUseCases();
+
+}
+
+runTests();
+
+/*
+1. verify resources with the same resource
+2. verify longest path compared to the resource
+3. verify extracting params via colons and '?' sign
+4. verify cookies
+5. verify registering to 'get'
+6. check for unauthorized access
+
+write doc.html that explains what we are testing..
+
+ */
+
+
+
+
+
+
+
+
+
+

@@ -1,8 +1,5 @@
 /**
- * Created by Alon on 06/01/2015.
- */
-/**
- * Created by Alon on 06/01/2015.
+ * Created by Alon And Tal on 06/01/2015.
  */
 
 
@@ -20,10 +17,9 @@ var errBody = {
 };
 
 
-// square.js
 function HttpResponse(clientSocket) {
 
-    this.statusCode = 200; // If somehow status() wasn't called - this is internal error
+    this.statusCode = 200;
     this.header= {};
 
     this.parser = require('./hujiparser');
@@ -56,7 +52,6 @@ HttpResponse.prototype.closeConnection = function closeConnection(shouldClose) {
 HttpResponse.prototype.set = function(field, value) {
 
     if (value !== undefined) {
-
         this.header[field] = value;
     }
     else {
@@ -153,18 +148,11 @@ HttpResponse.prototype.send = function(body) {
     }
 
     var msg = this.parser.stringify(this);
-    //this.clientSocket.write(msg);
     this.clientSocket.write(msg, function() {
         if (this.shouldCloseConnection) {
             this.clientSocket.end();
         }
     });
-
-    //console.log("AAAAA: " + this.shouldCloseConnection);
-
-    //if (this.shouldCloseConnection) {
-    //    this.clientSocket.end();
-    //}
 
     return this;
 };
@@ -180,4 +168,3 @@ HttpResponse.prototype.json = function(body) {
 
 
 module.exports = HttpResponse;
-

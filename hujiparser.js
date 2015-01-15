@@ -23,11 +23,7 @@ var reasonPharseContent = {
 
 exports.parse = function (dataAsString) {
 
-    console.log("RRRRR");
-    console.log(dataAsString);
-
     var lines = dataAsString.split(/[\r\n][\r\n]?/);
-
     var i=0;
 
     var requestLineRegex = /^[\s]*([\w]+)[\s]+(([^\s]+?)[\s]+|([^\s]*?))([\w]+\/[0-9\.]+)[\s]*$/g;
@@ -49,15 +45,6 @@ exports.parse = function (dataAsString) {
             query = fillQueryParams(matches[4])
         }
 
-
-        //var index = path.indexOf('?');
-        //if (index !== -1) {
-        //    var queryParams = path.substr(index+1);
-        //    query = fillQueryParams(queryParams);
-        //    path = path.substr(0, index);
-        //    //path = path.normalize(path);
-        //}
-
         version = requestLineMatch[5].toUpperCase();
 
         if (version.indexOf("HTTP\/") == 0) {
@@ -70,8 +57,6 @@ exports.parse = function (dataAsString) {
     }
 
     // parse the header lines (if exist)
-
-
     while (i < lines.length && lines[i] !== "") {
         var headerRegex = /[\s]*([^:\s]+)[\s]*:[\s]*(.*)/g;
         var headerMatch = headerRegex.exec(lines[i++]);
@@ -115,8 +100,6 @@ exports.parse = function (dataAsString) {
         leftData = temp.substr(parseInt(header["content-length"]));
     }
 
-    // TODO: right now we don't support request line: "POST /name=tobi HTTP/1.1\n"... that let return "tobi" for req.param('name')
-
     if (header['cookie']) {
         cookies = querystring.parse(header['cookie'], /\s*;\s*/);
     }
@@ -140,6 +123,7 @@ function fillQueryParams(queryParams) {
 
     return query;
 }
+
 
 function addToQuery(key, val, query) {
     var leftBracketIndex = key.indexOf('[');
@@ -169,7 +153,6 @@ exports.stringify = function(httpResponse) {
         httpResponseAsString += headerKey + ": " + httpResponse.header[headerKey] + "\r\n";
     }
 
-    //httpResponseAsString += "Connection: Keep-Alive\r\n";
     httpResponseAsString += "\r\n";
     if (httpResponse.body !== null)
         httpResponseAsString += httpResponse.body;

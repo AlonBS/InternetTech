@@ -10,10 +10,7 @@ var pathModule = require('path');
 var resourceHandlers = []; // [resource, handler, type, params]
 
 
-
-
-// square.js
-function DynamicServer(port) { // TODO SHOW TAL
+function DynamicServer(port) {
 
     this.listener = hujiNet.createServer(port, onRequestArrival, function(err){
         if (err) {
@@ -21,7 +18,6 @@ function DynamicServer(port) { // TODO SHOW TAL
             return new Error(err); // throw err;
         }
     });
-
 };
 
 
@@ -79,12 +75,9 @@ function prepareResource(resource) {
     return resource;
 }
 
-
 function extractParamsName(resource, params) {
-    //console.log("received resource: " + resource) // TODO REMOVE
     resource = prepareResource(resource);
-    //console.log("after preparation, resource is: " + resource); // TODO REMOVE
-    var splitted = resource.split('/');
+    var splitted = resource.split('\\');
     var paramNum = 1;
 
     for (var i=0; i<splitted.length; i++) {
@@ -92,7 +85,7 @@ function extractParamsName(resource, params) {
             var param = splitted[i].substr(1);
             params[param] = paramNum++;
 
-            splitted[i] = "([^\/]*)"
+            splitted[i] = "([^\\]*)"
         }
     }
 
@@ -102,7 +95,6 @@ function extractParamsName(resource, params) {
     return resource;
 }
 
-// TODO: read http://expressjs.com/api.html#app.use
 DynamicServer.prototype.use = function () {
 
     var rh = setUpResourceAndHandler(arguments[0], arguments[1], "any");
@@ -198,13 +190,10 @@ function createErrorResponse(clientSocket, code) {
 
 
 function analyzeRequest(request, clientSocket) {
-    //console.log("### 1111: " + request);
+
     var httpRequest = parser.parse(request);
 
     console.log(httpRequest);
-    //console.log("---------- xxxxxxxxxxx ----------------");
-    //console.log("###request file: " + clientSocket.buffer);
-    //console.log("---------- yyyyyyyyyyy ----------------");
 
     // since the request isn't missing, update socket.buffer to holds the data received after reading the received data
     clientSocket.buffer = httpRequest.leftData;
@@ -229,23 +218,13 @@ function analyzeRequest(request, clientSocket) {
     var doNext = false;
     for (var i in resourceHandlers) {  // dynamically search for  handlers
 
-        var r = resourceHandlers[i]
+        var r = resourceHandlers[i];
+        var matches = httpRequest.path.match(r[0]);
 
-        //console.log("R2: " + r[2])
-        //console.log("REQUEST:" + httpRequest.method);
-
-        //console.log("PATH:" + httpRequest.path);
-        //console.log("R0:" + r[0]);
-
-
-        var matches = httpRequest.path.match(r[0]); // r[0]
-        //console.log(matches);
-        //cle.log("------")
         if (matches !== null && (httpRequest.method === r[2] || r[2] === 'any' ) ) {
-            console.log("p:: " + httpRequest.path);
-            console.log("r:: " + r[0]);
+
             foundMatch = true;
-            // This must be in here, since only here we know the matching resource
+
             httpRequest.updateParams(matches, r[3]);
 
             var httpResponse = createResponse(httpRequest, clientSocket, closeConnection);
@@ -273,7 +252,7 @@ function analyzeRequest(request, clientSocket) {
 function isValidRequest(httpRequest) {
 
     if (!httpRequest.version || httpRequest.version === "" || httpRequest.version.indexOf("HTTP/1.") !== 0) {
-        writeLog("hujiwebserver", "isValidRequest", "wrong http version", true);
+        writeLog("hujidynamicserver", "isValidRequest", "wrong http version", true);
         return false;
     }
 
@@ -304,15 +283,12 @@ function createResponse(httpRequest, clientSocket, closeConnection) {
     response.closeConnection(closeConnection);
 
     var type = identifyType(httpRequest.path);
-    //console.log("type: " + type);
 
     // send header part
     response.set("content-type", type);
 
-    //TODO what other fields in the response should we set? I don't think that something is missing..
     return response;
 }
-
 
 
 module.exports = DynamicServer;

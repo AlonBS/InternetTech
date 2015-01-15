@@ -1,9 +1,8 @@
 /**
- * Created by Alon on 06/01/2015.
+ * Created by Alon And Tal on 06/01/2015.
  */
 
 
-// square.js
 function HttpRequest(method, version, header,
                      body, leftData, query,
                      cookies, path, host, protocol) {
@@ -13,7 +12,6 @@ function HttpRequest(method, version, header,
     }
 
     this.method = method;
-    //this.requestURI = requestURI;
     this.params = {};
     this.version = version;
     this.header = header;
@@ -42,9 +40,6 @@ HttpRequest.prototype.param = function(pName) {
     else if (this.query[pName] !== undefined) {
         return this.query[pName]
     }
-
-    //return shit; TODO check what is the default value this function gets
-
 };
 
 
@@ -58,11 +53,6 @@ HttpRequest.prototype.is = function(type) {
 };
 
 
-// /user/:name
-// /user/*
-// /user/*/eti
-
-// get /user/iosi
 HttpRequest.prototype.updateParams = function(matches, paramsNames) {
 
     for (var name in paramsNames) {
@@ -70,8 +60,6 @@ HttpRequest.prototype.updateParams = function(matches, paramsNames) {
         this.params[name] = matches[index];
     }
 };
-
-
 
 
 module.exports = HttpRequest;

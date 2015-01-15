@@ -7,7 +7,6 @@ var net = require('net');
 var portNum = 8888;
 var numOfClients = 400; // This number is architecture dependent. On our computer, 400 was possible.
 
-//var httpRequest = "GET C:/Users/Alon/WebstormProjects/InternetTech/ex2/index.html http/1.1\nConnection: keep-alive\r\n\r\n";
 var httpRequest = "GET /ex2/index.html HTTP/1.1\nConnection: keep-alive\r\n\r\n";
 
 function loadServer_1() {

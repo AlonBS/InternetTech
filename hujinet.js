@@ -9,7 +9,6 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
 
         socket.buffer = "";
         socket.on('data', function(data) {
-            //console.log("3333333: " + data.toString());
             this.buffer += data;
             onRequestArrival(this.buffer.toString(), socket);
         });
@@ -28,7 +27,6 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
 
 
         socket.on('error', function(err) {
-            console.log("HUJINET ERROR ON SOCKET !!");
             if (err.code == 'ECONNRESET') {
                 callBackFunc("Error: Reset connection detected.");
                 return;
