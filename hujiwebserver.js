@@ -171,10 +171,19 @@ var staticResourceHandler = function (request, response, next) {
 exports.myUse = function (resource) {
 
     this.toString = function() {
-        return "EX"; // TODO THIS IS NOT GOOD
+        return "This function registers a resource which will allow users to upload\n" +
+            "a file. The file is kept in a safe directory of which the caller of this function has\n" +
+            "no control of (for safety reasons). Over all, this allows rather easy way to\n" +
+            "upload a file to the server's disk.";
     };
 
-    server.put(resource, myUseResourceHandler);
+    // if no resource is given, we assume that this was called in order to call the 'toString()' function,
+    // so we don't register the server.
+    if (resource !== undefined && resource !== null) {
+        server.put(resource, myUseResourceHandler);
+    }
+
+    return this;
 };
 
 
