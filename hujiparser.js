@@ -4,6 +4,7 @@
 
 //TODO the request module is here, but the respone is in dynamicServer. Maybe unite them?
 var httpRequestModule = require('./HttpRequest');
+var querystring = require('querystring');
 
 var pathModule = require('path');
 
@@ -22,6 +23,9 @@ var reasonPharseContent = {
 
 exports.parse = function (dataAsString) {
 
+    console.log("RRRRR");
+    console.log(dataAsString);
+
     var lines = dataAsString.split(/[\r\n][\r\n]?/);
 
     var i=0;
@@ -29,7 +33,7 @@ exports.parse = function (dataAsString) {
     var requestLineRegex = /^[\s]*([\w]+)[\s]+(([^\s]+?)[\s]+|([^\s]*?))([\w]+\/[0-9\.]+)[\s]*$/g;
     var requestLineMatch = requestLineRegex.exec(lines[i++]);
 
-    var method, path, host, query = {}, version, protocol, header = {}, body, leftData;
+    var method, path, host, query = {}, version, protocol, header = {}, body, leftData, cookies = {};
 
     // parse the request line
     if (requestLineMatch != null) {
@@ -110,11 +114,14 @@ exports.parse = function (dataAsString) {
         body = temp.substr(0, parseInt(header["content-length"]));
         leftData = temp.substr(parseInt(header["content-length"]));
     }
+
     // TODO: right now we don't support request line: "POST /name=tobi HTTP/1.1\n"... that let return "tobi" for req.param('name')
 
-    // TODO: complete implemnatation !!
+    if (header['cookie']) {
+        cookies = querystring.parse(header['cookie'], /\s*;\s*/);
+    }
 
-    return new httpRequestModule(method, version, header, body, leftData, query, null /* cookies*/, path, host, protocol);
+    return new httpRequestModule(method, version, header, body, leftData, query, cookies, path, host, protocol);
 };
 
 function fillQueryParams(queryParams) {

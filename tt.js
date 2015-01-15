@@ -159,7 +159,8 @@ function test2() {
         headers: {
             'connection' : "keep-alive",
             'Content-Type' : 'text/plain',
-            'Content-Length' : 0
+            'Content-Length' : 0,
+            'Cookie': 'name=value; name2=value2'
         },
         path: '/ex2/innerDir/innerFile.txt'
 
@@ -417,16 +418,16 @@ function setUpServerAndUseCases() {
             //checkTest(response.statusCode, "first delete");
         });
 
-        test1('./iosi.txt');
+        //test1('./iosi.txt');
         // TODO - There is an error during 'next' call. the second handler are not invoked.
         test2();
-        test3();
-        test4();
-        test5();
-        test6();
-        test7();
-        test8();
-        test9();
+        //test3();
+        //test4();
+        //test5();
+        //test6();
+        //test7();
+        //test8();
+       // test9();
     });
 }
 

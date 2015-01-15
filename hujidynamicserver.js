@@ -200,6 +200,8 @@ function createErrorResponse(clientSocket, code) {
 function analyzeRequest(request, clientSocket) {
     //console.log("### 1111: " + request);
     var httpRequest = parser.parse(request);
+
+    console.log(httpRequest);
     //console.log("---------- xxxxxxxxxxx ----------------");
     //console.log("###request file: " + clientSocket.buffer);
     //console.log("---------- yyyyyyyyyyy ----------------");
