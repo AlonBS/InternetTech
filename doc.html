@@ -1,0 +1,85 @@
+<html>
+	<head>
+		<title>Tester Documentation</title>
+        <style>
+            body {
+                background: repeating-linear-gradient(cornflowerblue, honeydew , cornsilk)
+            }
+            th, td {
+                border: 1px dotted black;
+                padding:5px;
+            }
+            table {
+                border: 1px dotted black;
+            }
+            h1 {
+                text-align: center;
+            }
+        </style>
+	</head>
+	<body>
+		<section>
+			<h1><u>tester.js</u></h1>
+            <h4>Usage : node tester.js (all tests run automatically)</h4>
+            <p>
+                <table cellspacing="0">
+                    <tr>
+                        <th>#</th>
+                        <th>Info</th>
+                        <th>Expected result</th>
+                    </tr>
+                     <tr>
+                        <td>1</td>
+                        <td> Tests myUse (upload of a file).
+                        <td> A file called 'uploadMe' should be uploaded.</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td> Checks parameters extraction (both by using ':' and by using '?'). Also checks that once a parameter appears, a regex is used for the resource. In addition cookies are tested. </td>
+                        <td> Code 200 should be returned.</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td> Request resouce that was registered using 'post', where the request is of type 'get'.</td>
+                        <td> Error Code 404.</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td> Checks only 'get' use - dynamicserver.get(). </td>
+                        <td> Code 200 should be returned.</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td> Checks only 'post' use - dynamicserver.post().</td>
+                        <td> Code 200 should be returned.</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td> Checks only 'put' use - dynamicserver.put().</td>
+                        <td> Code 200 should be returned.</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td> Checks only 'delete' use - dynamicserver.delete(). </td>
+                        <td> Code 200 should be returned.</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td> Although the file does not exist, we expect to invoke the suitable resource handler. In case that non of the registered resource handlers are invoked, 404 response will be sent. </td>
+                        <td> Expected return code 200 - the reason is that there is a match for the handler. The handler it self should verify that such file does not exists - which is the responsibility of the admin who uses this file.<td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td> Checks DOS attack (attempt to access unauthorized path).</td>
+                        <td> Request won't be answered.</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td> Checks for param under rootFolder.</td>
+                        <td> Return code 200.</td>
+                    </tr>
+                </table>
+            </p>
+		</section>
+	</body>
+</html>
