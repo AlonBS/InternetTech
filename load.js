@@ -99,11 +99,17 @@ function runLoadTest() {
         console.log("Server connected successfully");
         console.log("-----------------------------");
 
-        server.use("/", webServer.static("/ex2"));  // we check load test against static requests
+        server.use("/", webServer.static("/www"));  // we check load test against static requests
         loadServer_1();
 
         setTimeout(function() { // We wait a bit before trying the second load test.
             loadServer_2();
+
+            setTimeout(function() {
+                console.log("The server is left open. It handles static requests where '/www/' is defined as the root\n" +
+                "folder, you can reach to our ex2 files by sending a request with the relative path '/ex2/index.html'")
+            }, 5000)
+
         }, 5000);
     });
 }

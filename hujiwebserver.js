@@ -13,10 +13,13 @@ var shortServerStaticRootFolder = "";
 var server; // this dynamic server instance
 
 
-function getFullPath(shortPath) {
+function getFullPath(shortPath, isStatic) {
+
+    if (isStatic === true)
+        shortPath = serverStaticRootFolder + shortPath;
 
     if (shortPath.indexOf('\\') === 0) {
-        shortPath = "." + shortPath;
+        shortPath = "." + '\\' + shortPath;
     }
 
     return path.resolve(shortPath);
@@ -39,7 +42,7 @@ exports.static = function (rootFolder) {
     shortServerStaticRootFolder = rootFolder;
 
     try {
-        serverStaticRootFolder = getFullPath(rootFolder);
+        serverStaticRootFolder = getFullPath(rootFolder, false);
 
         // verify that the received root folder  exists
         if (!fs.existsSync(serverStaticRootFolder)) {
@@ -55,7 +58,7 @@ exports.static = function (rootFolder) {
 
 var staticResourceHandler = function (request, response, next) {
 
-    var fullPath = getFullPath(request.path);
+    var fullPath = getFullPath(request.path, true);
 
     // checks for unauthorized access: if the file path starts with the given server root folder.
     if (fullPath.indexOf(serverStaticRootFolder) != 0) {
@@ -119,7 +122,7 @@ exports.myUse = function (resource) {
 var myUseResourceHandler = function (request, response, next) {
 
     // opens the file as a writable stream
-    var fullPath = getFullPath(request.path);
+    var fullPath = getFullPath(request.path, false);
 
     var writeToFile = fs.createWriteStream(fullPath);
 

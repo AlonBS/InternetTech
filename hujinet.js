@@ -28,7 +28,7 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
 
         socket.on('error', function(err) {
             if (err.code == 'ECONNRESET') {
-                callBackFunc("Error: Reset connection detected.");
+                callBackFunc("");
                 return;
             }
 
