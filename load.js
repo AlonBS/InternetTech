@@ -99,7 +99,7 @@ function runLoadTest() {
         console.log("Server connected successfully");
         console.log("-----------------------------");
 
-        webServer.static("/ex2"); // we check load test against static requests
+        server.use("/", webServer.static("/ex2"));  // we check load test against static requests
         loadServer_1();
 
         setTimeout(function() { // We wait a bit before trying the second load test.

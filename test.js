@@ -79,9 +79,9 @@ function test2() {
             'connection' : "keep-alive",
             'Content-Type' : 'text/plain',
             'Content-Length' : 0,
-            'Cookie': 'name=value; name2=value2'
+            'Cookie': 'name=Tal; name2=Alon'
         },
-        path: '/ex2/green/innerFile.txt'
+        path: '/ex2/green/innerFile.txt?firstName=liraz'
 
     };
 
@@ -214,16 +214,12 @@ function test9() {
             'Content-Type' : 'text/plain',
             'Content-Length' : 0
         },
-        path: '/../ex3/alonTest.js'
+        path: '/../../someFile.js'
 
     };
 
     createHttpRequest(options, "", 9, 404);
 }
-
-
-
-
 
 function setUpServerAndUseCases() {
 
@@ -238,11 +234,15 @@ function setUpServerAndUseCases() {
         console.log("Server Connected Successfully!");
         console.log("------------------------------");
 
-        webServer.myUse('/uploads');
+        var myUseExplanation = webServer.myUse('/uploads').toString();
+        console.log("myUse explanation:");
+        console.log(myUseExplanation);
+        console.log("------------------------------");
 
         server.use('/ex2/:color', function(request, response, next){
 
-            if (request.params.color === 'green') {
+            if (request.params.color === 'green' && request.param('firstname') === 'liraz' &&
+            request.cookies.name === 'tal' && request.cookies.name2 === 'alon') {
                 console.log("pass testing extracting param values");
             }
             else {
@@ -274,7 +274,7 @@ function setUpServerAndUseCases() {
             next();
         });
 
-        server.get('/only/get', function(request, response, next){
+        server.get('/only/get/', function(request, response, next){
             response.status(200).send("handled by the first 'get'.");
         });
 
@@ -291,51 +291,24 @@ function setUpServerAndUseCases() {
             response.status(200).send("handled by the first 'delete'.");
         });
 
-        //test1('./uploadMe.txt');
-        // TODO - There is an error during 'next' call. the second handler are not invoked.
+        test1('./uploadMe.txt');
         test2();
-        //test3();
-        //test4();
-        //test5();
-        //test6();
-        //test7();
-        //test8();
-       // test9();
+        test3();
+        test4();
+        test5();
+        test6();
+        test7();
+        test8();
+        test9();
+
+        server.stop();
     });
 }
-
-
-// TODO: right now we don't support request line: "POST /name=tobi HTTP/1.1\n"... that let return "tobi" for req.param('name')
-// TODO - currently - only one server is supported. (this will be enclosed as a private member of hujiwebServer)
-// TODO: this is the correct format to use 'static' server
 
 
 function runTests() {
 
     setUpServerAndUseCases();
-
 }
 
 runTests();
-
-/*
-1. verify resources with the same resource
-2. verify longest path compared to the resource
-3. verify extracting params via colons and '?' sign
-4. verify cookies
-5. verify registering to 'get'
-6. check for unauthorized access
-
-write doc.html that explains what we are testing..
-
- */
-
-
-
-
-
-
-
-
-
-

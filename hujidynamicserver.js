@@ -22,10 +22,11 @@ function DynamicServer(port) {
 
 
 DynamicServer.prototype.stop = function() {
+    var listener = this.listener;
 
     setTimeout(function() {
-        this.listener.end();
-    }, 2000);
+        listener.close();
+    }, 10000);
 };
 
 
@@ -53,7 +54,6 @@ function setUpResourceAndHandler() {
     retVal[1] = requestHandler;
     retVal[2] = arguments[2];
     retVal[3] = params;
-    //retVal[3] = transformToRegex(resource);
 
     return retVal;
 }
@@ -192,8 +192,6 @@ function createErrorResponse(clientSocket, code) {
 function analyzeRequest(request, clientSocket) {
 
     var httpRequest = parser.parse(request);
-
-    console.log(httpRequest);
 
     // since the request isn't missing, update socket.buffer to holds the data received after reading the received data
     clientSocket.buffer = httpRequest.leftData;
