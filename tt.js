@@ -324,7 +324,10 @@ function setUpServerAndUseCases() {
         console.log("Server Connected Successfully!");
         console.log("------------------------------");
 
+        // TODO: this is the correct format to use 'static' server
         //server.use("/", webServer.static("/"));
+
+
         webServer.myUse('/uploads');
 
         server.use('/ex2/innerDir', function(request, response, next){
@@ -351,6 +354,8 @@ function setUpServerAndUseCases() {
                 console.log("handled by the second 'use', but got failure");
 
             //console.log("Here 2");*/
+
+            console.log("w:: " + request.path);
 
             response.status(200).send("handled by the second 'use'. next is called but there isn't another resource " +
             "handler");

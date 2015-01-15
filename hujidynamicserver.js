@@ -240,7 +240,8 @@ function analyzeRequest(request, clientSocket) {
         //console.log(matches);
         //cle.log("------")
         if (matches !== null && (httpRequest.method === r[2] || r[2] === 'any' ) ) {
-
+            console.log("p:: " + httpRequest.path);
+            console.log("r:: " + r[0]);
             foundMatch = true;
             // This must be in here, since only here we know the matching resource
             httpRequest.updateParams(matches, r[3]);
