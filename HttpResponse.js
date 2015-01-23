@@ -28,11 +28,10 @@ function HttpResponse(clientSocket) {
     this.clientSocket = clientSocket;
 
     this.shouldCloseConnection = false;
+    this.isSent = true;
 
     return this;
 };
-
-
 
 
 HttpResponse.prototype.status = function status(statusCode) {
@@ -60,7 +59,6 @@ HttpResponse.prototype.set = function(field, value) {
         }
     }
 
-
     return this;
 };
 
@@ -76,7 +74,7 @@ HttpResponse.prototype.cookie = function (name, value, options) {
     options = options ? options : {};
     var chValue;
     if (typeof value === 'object') {
-        value = 'j:' + JSON.stringify(value);
+        value = JSON.stringify(value);
     }
 
     chValue =  [name + '=' + value];
@@ -91,18 +89,18 @@ HttpResponse.prototype.cookie = function (name, value, options) {
         chValue.push('path=' + options.path);
     }
 
-    if (options.secure) chValue.push('secure=true');
+    if (options.secure) chValue.push('secure');
 
     if (options.expires) chValue.push('expires=' + options.expires.toUTCString());
 
     if (options.maxAge) {
 
         options.expires = new Date(Date.now() + options.maxAge);
-        options.maxAge /= 1000; // in seconds
+        //options.maxAge /= 1000; // in seconds
         chValue.push('max-age=' + options.maxAge);
     }
 
-    if (options.httpOnly) chValue.push('httponly=true');
+    if (options.httpOnly) chValue.push('httponly');
     // according to forum we should not support signed-cookie
 
     chValue = chValue.join('; ');
@@ -148,12 +146,13 @@ HttpResponse.prototype.send = function(body) {
     }
 
     var msg = this.parser.stringify(this);
-    this.clientSocket.write(msg, function() {
-        if (this.shouldCloseConnection) {
-            this.clientSocket.end();
-        }
+    var socket = this.clientSocket;
+    var closeConnection = this.shouldCloseConnection;
+    socket.write(msg, function() {
+        if (closeConnection) socket.end()
     });
 
+    this.isSent = true;
     return this;
 };
 
@@ -162,6 +161,7 @@ HttpResponse.prototype.json = function(body) {
 
     var msg = JSON.stringify(body);
     this.set('content-type', 'application/json');
+    this.isSent = true;
 
     return this.send(msg);
 };

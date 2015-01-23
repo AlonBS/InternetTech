@@ -5,9 +5,11 @@
 exports.createServer = function(port, onRequestArrival, callBackFunc) {
 
     var net = require('net');
+
     var server = net.createServer(function(socket) { //'connection' listener
 
         socket.buffer = "";
+
         socket.on('data', function(data) {
             this.buffer += data;
             onRequestArrival(this.buffer.toString(), socket);

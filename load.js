@@ -82,7 +82,7 @@ function loadServer_2() {
     setTimeout(function() {
 
         console.log("*************RESULTS************");
-        console.log("Requests handled successfully: " + successes + " out of " + numOfClients + ".");
+        console.log("Requests handled successfully: " + successes/2 + " out of " + numOfClients + ".");
 
         console.log("Load Test 2 Ended - check results");
         console.log("---------------------------------");

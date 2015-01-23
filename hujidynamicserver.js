@@ -9,6 +9,10 @@ var pathModule = require('path');
 
 var resourceHandlers = []; // [resource, handler, type, params]
 
+var handlerIndex = -1;
+var currHttpRequest;
+var currHttpResponse;
+
 
 function DynamicServer(port) {
 
@@ -161,6 +165,38 @@ var identifyType = function (uri) {
 
 DynamicServer.prototype.identifyType = identifyType;
 
+var next = function() {
+
+    var isFoundHandler = false;
+
+    // if handler index > -1, it means that 'next' function is invoked again.
+    if (handlerIndex > -1) {
+        isFoundHandler = true;
+    }
+
+    for (var i = handlerIndex + 1; i < resourceHandlers.length; i++) {
+        handlerIndex = i;
+
+        var r = resourceHandlers[i];
+        var matches = currHttpRequest.path.match(r[0]);
+
+        if (matches !== null && (currHttpRequest.method === r[2] || r[2] === 'any' ) ) {
+
+            isFoundHandler = true;
+            currHttpRequest.updateParams(matches, r[3]);
+
+            var handler = r[1];
+
+            handler(currHttpRequest, currHttpResponse, next);
+
+            break;
+        }
+    }
+
+    if (!isFoundHandler) {
+        currHttpResponse.status(404).send();
+    }
+};
 
 function onRequestArrival(request, clientSocket) {
 
@@ -191,60 +227,32 @@ function createErrorResponse(clientSocket, code) {
 
 function analyzeRequest(request, clientSocket) {
 
-    var httpRequest = parser.parse(request);
+    currHttpRequest = parser.parse(request);
 
     // since the request isn't missing, update socket.buffer to holds the data received after reading the received data
-    clientSocket.buffer = httpRequest.leftData;
+    clientSocket.buffer = currHttpRequest.leftData;
 
     //if the request is missing or in bad format, return (the error response was already sent)
-    if (httpRequest === null || httpRequest === undefined) {
+    if (currHttpRequest === null || currHttpRequest === undefined) {
         return createErrorResponse(clientSocket, 400);
     }
 
-    if (httpRequest.path === undefined) {
+    if (currHttpRequest.path === undefined) {
         return createErrorResponse(clientSocket, 400);
     }
 
-    var closeConnection = shouldCloseConnection(httpRequest);
-    if (!isValidRequest(httpRequest)) {
+    var closeConnection = shouldCloseConnection(currHttpRequest);
+    if (!isValidRequest(currHttpRequest)) {
         return createErrorResponse(clientSocket, 400);
     }
 
+    currHttpResponse = createResponse(currHttpRequest, clientSocket, closeConnection);
 
+    next();
 
-    var foundMatch = false;
-    var doNext = false;
-    for (var i in resourceHandlers) {  // dynamically search for  handlers
-
-        var r = resourceHandlers[i];
-        var matches = httpRequest.path.match(r[0]);
-
-        if (matches !== null && (httpRequest.method === r[2] || r[2] === 'any' ) ) {
-
-            foundMatch = true;
-
-            httpRequest.updateParams(matches, r[3]);
-
-            var httpResponse = createResponse(httpRequest, clientSocket, closeConnection);
-
-            var handler = r[1];
-
-            handler(httpRequest, httpResponse, function() {
-                // important for this variable to remain in this function stack
-                // to support multi-threading calls of this function
-                doNext = true;
-            });
-
-            if (!doNext) return;
-            doNext = false;
-        }
-    }
-
-    if (!foundMatch) { // no resource match the given request
-        createErrorResponse(clientSocket, 404);
-    }
+    // set to default value for next time
+    handlerIndex = -1;
 }
-
 
 
 function isValidRequest(httpRequest) {
@@ -271,8 +279,6 @@ function shouldCloseConnection(httpRequest) {
 
     return false;
 }
-
-
 
 
 function createResponse(httpRequest, clientSocket, closeConnection) {

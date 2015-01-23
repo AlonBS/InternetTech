@@ -48,7 +48,7 @@ exports.static = function (rootFolder) {
         if (!fs.existsSync(serverStaticRootFolder)) {
             writeLog("hujiwebserver", "static", "invalid root folder", true);
 
-            return;
+            //return;
         }
     } catch (e) {}
 
@@ -78,24 +78,32 @@ var staticResourceHandler = function (request, response, next) {
             return;
         }
 
-        fs.readFile(fullPath, 'utf8', function (err, data) {
+        // opens the file as a readable stream
+        var fileAsAStream = fs.createReadStream(fullPath);
 
-            if (err) {
-                response.status(404).send();
-            }
+        // waits until we know the readable stream is actually valid before piping
+        fileAsAStream.on("open", function() {
 
             var closeConnection = response.shouldCloseConnection;
+            var type = server.identifyType(request.path);
+            var socketToClient = response.clientSocket;
 
             // send header part
             response.set("content-type", server.identifyType(request.path));
             response.set("content-length", stats.size);
-            response.send(data);
+            response.send(); // this will exclude the body
+
+            fileAsAStream.pipe(socketToClient, {end: false}); // the content of file is piped
 
             if (closeConnection)
-                request.clientSocket.end();
-
+                socketToClient.end();
         });
-    })
+
+        // catches any errors that happen while creating the readable stream (usually invalid names)
+        fileAsAStream.on("error", function(err) {
+            response.status(404).send();
+        });
+    });
 };
 
 
