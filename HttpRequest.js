@@ -28,24 +28,24 @@ function HttpRequest(method, version, header,
 
 HttpRequest.prototype.get = function(attr) {
 
-    return this.header[attr];
+    return this.header[attr.toLowerCase()];
 };
 
 
 HttpRequest.prototype.param = function(pName) {
 
-    if (this.params[pName] !== undefined) {
-        return this.params[pName]
+    if (this.params[pName.toLowerCase()] !== undefined) {
+        return this.params[pName.toLowerCase()]
     }
-    else if (this.query[pName] !== undefined) {
-        return this.query[pName]
+    else if (this.query[pName.toLowerCase()] !== undefined) {
+        return this.query[pName.toLowerCase()]
     }
 };
 
 
 HttpRequest.prototype.is = function(type) {
 
-    if (this.header['content-type'] === type.toLowerCase()) {
+    if (this.header['content-type'].match(type.toLowerCase()) !== null) {
         return true;
     }
 

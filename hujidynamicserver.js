@@ -81,6 +81,11 @@ function prepareResource(resource) {
 
 function extractParamsName(resource, params) {
     resource = prepareResource(resource);
+
+    if (resource === ".") {
+        return "^.+";
+    }
+
     var splitted = resource.split('\\');
     var paramNum = 1;
 
@@ -178,7 +183,8 @@ var next = function() {
         handlerIndex = i;
 
         var r = resourceHandlers[i];
-        var matches = currHttpRequest.path.match(r[0]);
+        var matches = currHttpRequest.path.match(r[0] + "($|\\\\)");
+        //var matches = currHttpRequest.path.match(r[0]);
 
         if (matches !== null && (currHttpRequest.method === r[2] || r[2] === 'any' ) ) {
 
@@ -255,6 +261,7 @@ function analyzeRequest(request, clientSocket) {
 }
 
 
+
 function isValidRequest(httpRequest) {
 
     if (!httpRequest.version || httpRequest.version === "" || httpRequest.version.indexOf("HTTP/1.") !== 0) {
@@ -279,6 +286,8 @@ function shouldCloseConnection(httpRequest) {
 
     return false;
 }
+
+
 
 
 function createResponse(httpRequest, clientSocket, closeConnection) {

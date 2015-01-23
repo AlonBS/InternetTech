@@ -48,10 +48,10 @@ exports.parse = function (dataAsString) {
         version = requestLineMatch[5].toUpperCase();
 
         if (version.indexOf("HTTP\/") == 0) {
-            protocol = "HTTP";
+            protocol = "http";
         }
         else if (version.indexOf("HTTPS\/") == 0) {
-            protocol = "HTTPS";
+            protocol = "https";
         }
 
     }
@@ -117,6 +117,10 @@ function fillQueryParams(queryParams) {
         if (equalIndex != -1) {
             var key = splittedQueryParams[i].substr(0, equalIndex);
             var val = splittedQueryParams[i].substr(equalIndex + 1);
+
+            // replace '+' with ' '
+            val = val.replace(/\+/g, ' ');
+
             addToQuery(key, val, query);
         }
     }

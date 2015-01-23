@@ -10,9 +10,10 @@ var errBody = {
     404 : "Error 404: Not Found",
     413 : "Error 413: Request Entity Too Large",
     414 : "Error 414: Request-URI Too Large",
+    500 : "Error 500: Internal Server Error",
     505 : "Error 505: HTTP Version not supported",
 
-    def:  "Error 500: Undefined Error"
+    def:  "Error 500: Internal Server Error"
 
 };
 
@@ -32,6 +33,8 @@ function HttpResponse(clientSocket) {
 
     return this;
 };
+
+
 
 
 HttpResponse.prototype.status = function status(statusCode) {
@@ -58,6 +61,7 @@ HttpResponse.prototype.set = function(field, value) {
             this.header[val] = field[val];
         }
     }
+
 
     return this;
 };
@@ -112,7 +116,7 @@ HttpResponse.prototype.cookie = function (name, value, options) {
 
 HttpResponse.prototype.send = function(body) {
 
-    if (this.statusCode !== 200) {
+    if (this.statusCode !== 200 && (body === undefined || body === null)) {
         body = errBody[this.statusCode];
     }
 
@@ -132,7 +136,7 @@ HttpResponse.prototype.send = function(body) {
                     this.set('content-type', 'application/octet-stream');
                 }
 
-                this.body = body; //.toString();
+                this.body = body.toString();
                 this.set('content-length', body.length);
             }
             else {
@@ -146,6 +150,11 @@ HttpResponse.prototype.send = function(body) {
     }
 
     var msg = this.parser.stringify(this);
+    this.clientSocket.write(msg, function() {
+        if (this.shouldCloseConnection) {
+            this.clientSocket.end();
+        }
+    });
 
     var socket = this.clientSocket;
     var closeConnection = this.shouldCloseConnection;
@@ -188,6 +197,7 @@ HttpResponse.prototype.json = function(body) {
 
     var msg = JSON.stringify(body);
     this.set('content-type', 'application/json');
+
     this.isSent = true;
 
     return this.send(msg);
