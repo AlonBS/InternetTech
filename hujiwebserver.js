@@ -78,32 +78,25 @@ var staticResourceHandler = function (request, response, next) {
             return;
         }
 
-        // opens the file as a readable stream
-        var fileAsAStream = fs.createReadStream(fullPath);
+        fs.readFile(fullPath, function (err, data) {
 
-        // waits until we know the readable stream is actually valid before piping
-        fileAsAStream.on("open", function() {
+            if (err) {
+                response.status(404).send();
+            }
 
             var closeConnection = response.shouldCloseConnection;
             var type = server.identifyType(request.path);
-            var socketToClient = response.clientSocket;
 
             // send header part
             response.set("content-type", server.identifyType(request.path));
             response.set("content-length", stats.size);
-            response.send(); // this will exclude the body
-
-            fileAsAStream.pipe(socketToClient, {end: false}); // the content of file is piped
+            response.send(data);
 
             if (closeConnection)
-                socketToClient.end();
-        });
+                response.clientSocket.end();
 
-        // catches any errors that happen while creating the readable stream (usually invalid names)
-        fileAsAStream.on("error", function(err) {
-            response.status(404).send();
         });
-    });
+    })
 };
 
 

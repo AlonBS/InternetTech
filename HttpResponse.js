@@ -132,7 +132,7 @@ HttpResponse.prototype.send = function(body) {
                     this.set('content-type', 'application/octet-stream');
                 }
 
-                this.body = body.toString();
+                this.body = body; //.toString();
                 this.set('content-length', body.length);
             }
             else {
@@ -146,11 +146,38 @@ HttpResponse.prototype.send = function(body) {
     }
 
     var msg = this.parser.stringify(this);
+
     var socket = this.clientSocket;
     var closeConnection = this.shouldCloseConnection;
-    socket.write(msg, function() {
-        if (closeConnection) socket.end()
-    });
+    var body = (this.body === null || this.body === undefined  ) ? null : this.body;
+
+    //socket.write(msg, function() {
+    //    if (body) {
+    //        socket.write(body, function() {
+    //            if (closeConnection) socket.end();
+    //        });
+    //    }
+    //});
+
+    socket.write(msg);
+    if (Buffer.isBuffer(body)) { // If it is not, than it is already embedded in msg
+        socket.write(body, function() {
+            if (closeConnection) socket.end();
+        });
+    }
+
+
+
+
+
+    //this.clientSocket.write(msg, function() {
+    //    this.clientSocket.write(this.body, function() {
+    //        if (this.shouldCloseConnection) {
+    //            this.clientSocket.end();
+    //        }
+    //
+    //    });
+    //});
 
     this.isSent = true;
     return this;

@@ -154,8 +154,11 @@ exports.stringify = function(httpResponse) {
     }
 
     httpResponseAsString += "\r\n";
-    if (httpResponse.body !== null)
+    if (httpResponse.body !== null && (!Buffer.isBuffer(httpResponse.body))) {
         httpResponseAsString += httpResponse.body;
+    }
+
+
 
     return httpResponseAsString;
 };
