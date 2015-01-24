@@ -174,6 +174,7 @@ function printTestsResults() {
 function test0(testId) {
     setServer(portsArr[testId], function (dynamicServer) {
         var rootFolder = path.normalize("./");
+        console.log("root folder: " + rootFolder);
         dynamicServer.use("/", hujiwebserver.static(rootFolder));
     });
 

@@ -37,6 +37,10 @@ exports.parse = function (dataAsString) {
 
         requestLineMatch[2] = pathModule.normalize(requestLineMatch[2].toLowerCase().trim());
 
+        if (requestLineMatch[2].indexOf("\\\\") === 0) {
+            requestLineMatch[2] = requestLineMatch[2].substr(1);
+        }
+
         var uriRegex = '^[^\\\\\\.]*([\\\\][\\\\])?[^\\\\]*([\\\\][^\\?]*)(\\?)?(.*)';
         var matches = requestLineMatch[2].match(uriRegex);
 
