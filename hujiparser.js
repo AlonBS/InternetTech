@@ -37,9 +37,21 @@ exports.parse = function (dataAsString) {
 
         requestLineMatch[2] = pathModule.normalize(requestLineMatch[2].toLowerCase().trim());
 
+        var startIndex = 0;
+        var len = requestLineMatch[2].length;
+
         if (requestLineMatch[2].indexOf("\\\\") === 0) {
-            requestLineMatch[2] = requestLineMatch[2].substr(1);
+            startIndex = 1;
+            len -= 1;
         }
+        if (requestLineMatch[2].lastIndexOf("\\") === requestLineMatch[2].length-1) {
+            len -= 1;
+        }
+
+        requestLineMatch[2] = requestLineMatch[2].substr(startIndex, len);
+
+
+
 
         var uriRegex = '^[^\\\\\\.]*([\\\\][\\\\])?[^\\\\]*([\\\\][^\\?]*)(\\?)?(.*)';
         var matches = requestLineMatch[2].match(uriRegex);
