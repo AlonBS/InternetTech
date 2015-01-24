@@ -108,8 +108,12 @@ HttpResponse.prototype.cookie = function (name, value, options) {
     // according to forum we should not support signed-cookie
 
     chValue = chValue.join('; ');
-    this.set('set-cookie', chValue);
 
+    if (this.header['set-cookie'] === undefined) {
+        this.header['set-cookie'] = [];
+    }
+
+    this.header['set-cookie'].push(chValue);
     return this;
 };
 
@@ -126,6 +130,7 @@ HttpResponse.prototype.send = function(body) {
             if (this.get('content-type') === undefined) {
                 this.set('content-type', 'text/html');
             }
+
             this.set('content-length', body.length);
             this.body = body;
             break;
@@ -162,6 +167,7 @@ HttpResponse.prototype.send = function(body) {
     }
 
     this.isSent = true;
+    this.set("content-type", undefined);
     return this;
 };
 

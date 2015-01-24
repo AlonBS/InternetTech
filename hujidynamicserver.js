@@ -167,7 +167,7 @@ var identifyType = function (uri) {
             return "image/gif";
 
         default:
-            return "text/plain";
+            return "text/html";
     }
 };
 
@@ -196,9 +196,7 @@ var next = function() {
             currHttpRequest.updateParams(matches, r[3]);
 
             var handler = r[1];
-
             handler(currHttpRequest, currHttpResponse, next);
-
             break;
         }
     }
@@ -254,8 +252,6 @@ function analyzeRequest(request, clientSocket, response) {
 
     currHttpResponse = fillResponse(response, currHttpRequest, closeConnection);
 
-
-
     next();
 
     // set to default value for next time
@@ -296,12 +292,6 @@ function fillResponse(response, httpRequest, closeConnection) {
 
     //var response = new httpResponseModule(clientSocket);
     response.closeConnection(closeConnection);
-
-    var type = identifyType(httpRequest.path);
-
-    // set header part
-    response.set("content-type", type);
-
     return response;
 }
 

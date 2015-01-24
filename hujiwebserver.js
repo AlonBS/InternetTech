@@ -87,7 +87,7 @@ var staticResourceHandler = function (request, response, next) {
             var type = server.identifyType(request.path);
 
             // send header part
-            response.set("content-type", server.identifyType(request.path));
+            response.set("content-type", type);
             response.set("content-length", stats.size);
             response.send(data);
 
