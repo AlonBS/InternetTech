@@ -204,11 +204,11 @@ var next = function() {
     }
 };
 
-function onRequestArrival(request, clientSocket) {
+function onRequestArrival(request, clientSocket, response) {
 
     try {
 
-        analyzeRequest(request, clientSocket)
+        analyzeRequest(request, clientSocket, response)
 
     }
     catch (e) { // in case some error happens, we return '500'
@@ -231,7 +231,7 @@ function createErrorResponse(clientSocket, code) {
 }
 
 
-function analyzeRequest(request, clientSocket) {
+function analyzeRequest(request, clientSocket, response) {
 
     currHttpRequest = parser.parse(request);
 
@@ -252,7 +252,7 @@ function analyzeRequest(request, clientSocket) {
         return createErrorResponse(clientSocket, 400);
     }
 
-    currHttpResponse = createResponse(currHttpRequest, clientSocket, closeConnection);
+    currHttpResponse = fillResponse(response, currHttpRequest, closeConnection);
 
     next();
 
@@ -290,14 +290,14 @@ function shouldCloseConnection(httpRequest) {
 
 
 
-function createResponse(httpRequest, clientSocket, closeConnection) {
+function fillResponse(response, httpRequest, closeConnection) {
 
-    var response = new httpResponseModule(clientSocket);
+    //var response = new httpResponseModule(clientSocket);
     response.closeConnection(closeConnection);
 
     var type = identifyType(httpRequest.path);
 
-    // send header part
+    // set header part
     response.set("content-type", type);
 
     return response;

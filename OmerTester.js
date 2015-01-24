@@ -794,7 +794,7 @@ var test_l = [
         },
         expected:{
             status:404,
-            data:"The requested resource not found"
+            data: "Error 404: Not Found"    //data:"The requested resource not found"
         }
     },
     {
@@ -827,7 +827,7 @@ var test_l = [
         },
         expected:{
             status:404,
-            data:"The requested resource not found"
+            data: "Error 404: Not Found"    //data:"The requested resource not found"
         }
     },
     {
@@ -849,7 +849,7 @@ var test_l = [
         },
         expected:{
             status:404,
-            data:"The requested resource not found"
+            data: "Error 404: Not Found"    //data:"The requested resource not found"
         }
     },
     {
@@ -871,7 +871,7 @@ var test_l = [
         },
         expected:{
             status:404,
-            data:"The requested resource not found"
+            data: "Error 404: Not Found"    //data:"The requested resource not found"
         }
     },
     {
@@ -893,7 +893,7 @@ var test_l = [
         },
         expected:{
             status:404,
-            data:"The requested resource not found"
+            data: "Error 404: Not Found"    //data:"The requested resource not found"
         }
     }
 

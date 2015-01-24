@@ -29,7 +29,7 @@ function HttpResponse(clientSocket) {
     this.clientSocket = clientSocket;
 
     this.shouldCloseConnection = false;
-    this.isSent = true;
+    this.isSent = false;
 
     return this;
 };
@@ -54,11 +54,11 @@ HttpResponse.prototype.closeConnection = function closeConnection(shouldClose) {
 HttpResponse.prototype.set = function(field, value) {
 
     if (value !== undefined) {
-        this.header[field] = value;
+        this.header[field.toLowerCase()] = value;
     }
     else {
         for (var val in field ) {
-            this.header[val] = field[val];
+            this.header[val.toLowerCase()] = field[val];
         }
     }
 
@@ -69,7 +69,7 @@ HttpResponse.prototype.set = function(field, value) {
 
 HttpResponse.prototype.get = function(attr) {
 
-    return this.header[attr]
+    return this.header[attr.toLowerCase()]
 };
 
 
