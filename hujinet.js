@@ -18,11 +18,7 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
             onRequestArrival(this.buffer.toString(), socket, response);
         });
 
-        socket.on('end', function() {
-            //if (response.isSent == false) {
-            //    response.status(404).send();
-            // }
-        });
+        socket.on('end', function() { /* Do nothing */ });
 
         socket.on('uncaughtException', function(err) {
 
@@ -30,10 +26,6 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
             if (err) {
                 errMsg = "Server had an uncaught exception"
             }
-
-            //if (response.isSent == false) {
-            //    response.status(500).send();
-            //}
 
             callBackFunc(errMsg)
         });
@@ -44,10 +36,6 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
                 callBackFunc("");
                 return;
             }
-
-            //if (response.isSent == false) {
-            //    response.status(404).send();
-            //}
 
             callBackFunc(err.toString())
         });

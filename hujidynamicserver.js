@@ -286,11 +286,8 @@ function shouldCloseConnection(httpRequest) {
 }
 
 
-
-
 function fillResponse(response, httpRequest, closeConnection) {
 
-    //var response = new httpResponseModule(clientSocket);
     response.closeConnection(closeConnection);
     return response;
 }

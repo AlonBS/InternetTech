@@ -758,7 +758,7 @@ function runTests() {
     //test12(12);
     //test13(13); ?
     //test14(14);
-    //test15(15);
+    test15(15);
     //test16(16);
     //test17(17);
     //test18(18);

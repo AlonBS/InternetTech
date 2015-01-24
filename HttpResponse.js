@@ -100,20 +100,19 @@ HttpResponse.prototype.cookie = function (name, value, options) {
     if (options.maxAge) {
 
         options.expires = new Date(Date.now() + options.maxAge);
-        //options.maxAge /= 1000; // in seconds
         chValue.push('max-age=' + options.maxAge);
     }
 
     if (options.httpOnly) chValue.push('httponly');
+
     // according to forum we should not support signed-cookie
 
     chValue = chValue.join('; ');
-
     if (this.header['set-cookie'] === undefined) {
         this.header['set-cookie'] = [];
     }
-
     this.header['set-cookie'].push(chValue);
+
     return this;
 };
 

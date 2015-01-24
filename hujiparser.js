@@ -188,7 +188,15 @@ exports.stringify = function(httpResponse) {
         reasonPharseContent[httpResponse.statusCode] + "\r\n";
 
     for (var headerKey in httpResponse.header) {
-        httpResponseAsString += headerKey + ": " + httpResponse.header[headerKey] + "\r\n";
+        if (httpResponse.header[headerKey] instanceof Array) {
+            for (var v in httpResponse.header[headerKey]) {
+                httpResponseAsString += headerKey + ": " + httpResponse.header[headerKey][v] + "\r\n";
+            }
+        }
+        else {
+            httpResponseAsString += headerKey + ": " + httpResponse.header[headerKey] + "\r\n";
+        }
+
     }
 
     httpResponseAsString += "\r\n";
