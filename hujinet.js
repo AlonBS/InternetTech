@@ -54,9 +54,9 @@ exports.createServer = function(port, onRequestArrival, callBackFunc) {
 
 
         socket.setTimeout(2000, function() {
-            //if (response.isSent == false) {
-            //    response.status(404).send();
-            //}
+            if (response.isSent == false) {
+                response.status(404).send();
+            }
 
             socket.end();
         });
