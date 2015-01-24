@@ -29,7 +29,7 @@ exports.parse = function (dataAsString) {
     var requestLineRegex = /^[\s]*([\w]+)[\s]+(([^\s]+?)[\s]+|([^\s]*?))([\w]+\/[0-9\.]+)[\s]*$/g;
     var requestLineMatch = requestLineRegex.exec(lines[i++]);
 
-    var method, path, host, query = {}, version, protocol, header = {}, body, leftData, cookies = {};
+    var method, path, host, query = {}, version, protocol, header = {}, body, bodyParams = {}, leftData, cookies = {};
 
     // parse the request line
     if (requestLineMatch != null) {
@@ -37,12 +37,12 @@ exports.parse = function (dataAsString) {
 
         requestLineMatch[2] = pathModule.normalize(requestLineMatch[2].toLowerCase().trim());
 
-        var uriRegex = '^[^\\\\\\.]*([\\\\][\\\\])?[^\\\\]*([\\\\][^\\?#]*)(\\?|#)?(.*)';
+        var uriRegex = '^[^\\\\\\.]*([\\\\][\\\\])?[^\\\\]*([\\\\][^\\?]*)(\\?)?(.*)';
         var matches = requestLineMatch[2].match(uriRegex);
 
         path = matches[2];
         if (matches[3] === '?') {
-            query = fillQueryParams(matches[4])
+            query = fillParams(matches[4])
         }
 
         version = requestLineMatch[5].toUpperCase();
@@ -97,6 +97,12 @@ exports.parse = function (dataAsString) {
         }
 
         body = temp.substr(0, parseInt(header["content-length"]));
+
+        if (!isJsonString(body)) { // i.e, its in 'a=b&c=d' format
+            bodyParams = fillParams(body);
+
+        }
+
         leftData = temp.substr(parseInt(header["content-length"]));
     }
 
@@ -104,10 +110,22 @@ exports.parse = function (dataAsString) {
         cookies = querystring.parse(header['cookie'], /\s*;\s*/);
     }
 
-    return new httpRequestModule(method, version, header, body, leftData, query, cookies, path, host, protocol);
+    return new httpRequestModule(method, version, header, body, bodyParams, leftData, query, cookies, path, host, protocol);
 };
 
-function fillQueryParams(queryParams) {
+
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+
+
+function fillParams(queryParams) {
     var query = {};
     var splittedQueryParams = queryParams.split("&");
 

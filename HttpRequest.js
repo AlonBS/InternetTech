@@ -4,7 +4,7 @@
 
 
 function HttpRequest(method, version, header,
-                     body, leftData, query,
+                     body, bodyParams, leftData, query,
                      cookies, path, host, protocol) {
 
     if (leftData === undefined || leftData === null) {
@@ -16,6 +16,7 @@ function HttpRequest(method, version, header,
     this.version = version;
     this.header = header;
     this.body = body;
+    this.bodyParams = bodyParams;
     this.leftData = leftData;
 
     this.query = query;
@@ -36,6 +37,9 @@ HttpRequest.prototype.param = function(pName) {
 
     if (this.params[pName.toLowerCase()] !== undefined) {
         return this.params[pName.toLowerCase()]
+    }
+    else if (this.bodyParams[pName.toLowerCase()] !== undefined) {
+        return this.bodyParams[pName.toLowerCase()]
     }
     else if (this.query[pName.toLowerCase()] !== undefined) {
         return this.query[pName.toLowerCase()]
