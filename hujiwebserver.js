@@ -68,7 +68,6 @@ var staticResourceHandler = function (request, response, next) {
         return;
     }
 
-
     fs.stat(fullPath, function (err, stats) {
 
         if (err || !stats.isFile()) {
@@ -91,9 +90,6 @@ var staticResourceHandler = function (request, response, next) {
             response.set("content-type", server.identifyType(request.path));
             response.set("content-length", stats.size);
             response.send(data);
-
-            //if (closeConnection)
-            //    response.clientSocket.end();
 
         });
     })

@@ -29,7 +29,10 @@ DynamicServer.prototype.stop = function() {
     var listener = this.listener;
 
     setTimeout(function() {
-        listener.close();
+        if (listener !== null && listener !== undefined) {
+            listener.close();
+        }
+
     }, 10000);
 };
 
@@ -213,11 +216,7 @@ function onRequestArrival(request, clientSocket, response) {
 
     }
     catch (e) { // in case some error happens, we return '500'
-
-        new httpResponseModule(clientSocket)
-            .status(500)
-            .closeConnection(true)
-            .send();
+        createErrorResponse(clientSocket, 500);
     }
 
 }
