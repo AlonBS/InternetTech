@@ -188,6 +188,7 @@ var next = function() {
 
         if (matches !== null && (currHttpRequest.method === r[2] || r[2] === 'any' ) ) {
 
+
             isFoundHandler = true;
             currHttpRequest.updateParams(matches, r[3]);
 
@@ -253,6 +254,8 @@ function analyzeRequest(request, clientSocket, response) {
     }
 
     currHttpResponse = fillResponse(response, currHttpRequest, closeConnection);
+
+
 
     next();
 

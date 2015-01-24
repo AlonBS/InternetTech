@@ -92,8 +92,8 @@ var staticResourceHandler = function (request, response, next) {
             response.set("content-length", stats.size);
             response.send(data);
 
-            if (closeConnection)
-                response.clientSocket.end();
+            //if (closeConnection)
+            //    response.clientSocket.end();
 
         });
     })

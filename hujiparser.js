@@ -162,7 +162,5 @@ exports.stringify = function(httpResponse) {
         httpResponseAsString += httpResponse.body;
     }
 
-
-
     return httpResponseAsString;
 };
